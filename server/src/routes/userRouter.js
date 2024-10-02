@@ -1,8 +1,9 @@
-const { Queue_entries, Queues, Stores, User } = require('./models'); // Импорты моделей
+const { Queue_entries, Queues, Stores, User } = require('../../db/models'); 
 const userRouter = require('express').Router();
+const { Op } = require('sequelize');
 
 
-userRouter.route('/').post(async (req, res) => {
+/* userRouter.route('/').post(async (req, res) => {
   try {
     const { telegram_id, store_id, date, first_name, last_name } = req.body;
 
@@ -35,6 +36,51 @@ userRouter.route('/').post(async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Ошибка при записи в очередь' });
+  }
+});
+*/
+
+
+// Эндпоинт для получения статуса очереди
+userRouter.route('/:store_id').get(async (req, res) => {
+  const { store_id } = req.params;
+
+  try {
+    // Получаем текущую дату
+    const today = new Date();
+    
+    
+    const queue = await Queues.findOne({
+      where: {
+        store_id: store_id,
+        date: {
+          [Op.gte]: today, // Очередь на будущее
+        },
+      },
+      order: [['date', 'ASC']],
+    });
+
+    if (!queue) {
+      return res.status(404).json({ message: 'Очередь не найдена' });
+    }
+
+    // Проверяем, открыта ли очередь
+    const isOpen = queue.opened_at && new Date() >= new Date(queue.opened_at);
+
+    if (isOpen) {
+      // Если открыта, возвращаем список записанных пользователей
+      const entries = await Queue_entries.findAll({ where: { queue_id: queue.id } });
+      return res.status(200).json({
+        message: 'Очередь открыта',
+        users: entries,
+        queue_date: queue.date,
+      });
+    } else {
+      return res.status(200).json({ message: 'Очередь закрыта', queue_date: queue.date });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Ошибка получения статуса очереди' });
   }
 });
 

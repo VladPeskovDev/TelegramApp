@@ -6,6 +6,7 @@ const userRouter = require('./routes/userRouter');
 const cron = require('node-cron');
 // eslint-disable-next-line no-unused-vars
 const { openQueuesForAllStores } = require('./utils/queue');
+const { deleteQueuesAndEntriesForToday } = require('./utils/queueDelete');
 
 const app = express();
 

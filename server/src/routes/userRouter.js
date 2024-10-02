@@ -41,7 +41,7 @@ const { Op } = require('sequelize');
 */
 
 
-// Эндпоинт для получения статуса очереди
+
 userRouter.route('/:store_id').get(async (req, res) => {
   const { store_id } = req.params;
 
@@ -64,7 +64,6 @@ userRouter.route('/:store_id').get(async (req, res) => {
       return res.status(404).json({ message: 'Очередь не найдена' });
     }
 
-    // Проверяем, открыта ли очередь
     const isOpen = queue.opened_at && new Date() >= new Date(queue.opened_at);
 
     if (isOpen) {

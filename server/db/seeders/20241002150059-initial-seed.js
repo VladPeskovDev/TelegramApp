@@ -33,6 +33,11 @@ module.exports = {
         name: 'Сизо 6',
         createdAt: new Date(),
         updatedAt: new Date(),
+      },
+      {
+        name: 'Сизо 7',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }
     ], {});
   },

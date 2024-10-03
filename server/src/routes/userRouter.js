@@ -83,4 +83,80 @@ userRouter.route('/:store_id').get(async (req, res) => {
   }
 });
 
+/*  userRouter.route('/:store_id/today').get(async (req, res) => {
+  const { store_id } = req.params;
+
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const queue = await Queues.findOne({
+      where: {
+        store_id: store_id,
+        date: today,
+      },
+    });
+
+    if (!queue) {
+      return res.status(404).json({ message: 'Очередь на сегодня не найдена' });
+    }
+
+    const isOpen = queue.opened_at && new Date() >= new Date(queue.opened_at);
+
+    if (isOpen) {
+      const entries = await Queue_entries.findAll({ where: { queue_id: queue.id } });
+      return res.status(200).json({
+        message: 'Очередь на сегодня открыта',
+        users: entries,
+        queue_date: queue.date,
+      });
+    } else {
+      return res.status(200).json({ message: 'Очередь на сегодня закрыта', queue_date: queue.date });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Ошибка получения статуса очереди на сегодня' });
+  }
+});
+
+userRouter.route('/:store_id/tomorrow').get(async (req, res) => {
+  const { store_id } = req.params;
+
+  try {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+
+    const queue = await Queues.findOne({
+      where: {
+        store_id: store_id,
+        date: tomorrow,
+      },
+    });
+
+    if (!queue) {
+      return res.status(404).json({ message: 'Очередь на завтра не найдена' });
+    }
+
+    const isOpen = queue.opened_at && new Date() >= new Date(queue.opened_at);
+
+    if (isOpen) {
+      const entries = await Queue_entries.findAll({ where: { queue_id: queue.id } });
+      return res.status(200).json({
+        message: 'Очередь на завтра открыта',
+        users: entries,
+        queue_date: queue.date,
+      });
+    } else {
+      return res.status(200).json({ message: 'Очередь на завтра закрыта', queue_date: queue.date });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Ошибка получения статуса очереди на завтра' });
+  }
+});
+ */
+
+
+
 module.exports = userRouter;

@@ -1,6 +1,6 @@
-const cron = require('node-cron');
+//const cron = require('node-cron');
 const { Queues, Stores } = require('../../db/models');
-const { Op } = require('sequelize');
+//const { Op } = require('sequelize');
 
 
 async function openQueuesForAllStores() {
@@ -24,7 +24,7 @@ async function openQueuesForAllStores() {
   
   dateToOpen.setHours(0, 0, 0, 0);
 
-  const randomHour = Math.floor(Math.random() * 21);
+  const randomHour = Math.floor(Math.random() * (23 - 8 + 1)) + 8;
   const randomMinute = Math.floor(Math.random() * 60);
   const openTime = new Date(today);
   openTime.setHours(randomHour, randomMinute, 0, 0);
@@ -61,7 +61,7 @@ async function openQueuesForAllStores() {
 }
 
 
-cron.schedule('03 23 * * *', openQueuesForAllStores);
+
 
 
 

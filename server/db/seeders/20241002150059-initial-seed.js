@@ -5,37 +5,37 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.bulkInsert('Stores', [
       {
-        name: 'Сизо 1',
+        name: 'ФКУ СИЗО - 1 УФСИН России по г. Москве',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        name: 'Сизо 2',
+        name: 'ФКУ СИЗО - 2 УФСИН России по г. Москве',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        name: 'Сизо 3',
+        name: 'ФКУ СИЗО - 3 УФСИН России по г. Москве',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        name: 'Сизо 4',
+        name: 'ФКУ СИЗО - 4 УФСИН России по г. Москве',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        name: 'Сизо 5',
+        name: 'ФКУ СИЗО - 5 УФСИН России по г. Москве',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        name: 'Сизо 6',
+        name: 'ФКУ СИЗО - 6 УФСИН России по г. Москве',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        name: 'Сизо 7',
+        name: 'ФКУ СИЗО - 7 УФСИН России по г. Москве',
         createdAt: new Date(),
         updatedAt: new Date(),
       }

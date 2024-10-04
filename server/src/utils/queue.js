@@ -50,7 +50,7 @@ async function openQueuesForAllStores() {
           updatedAt: new Date()
         });
 
-        console.log(`Запись создана для магазина с ID ${store.id} и датой: ${dateToOpen.toDateString()} с временем открытия: ${openTime.toTimeString()}`);
+        console.log(`Очередь в СИЗО ${store.id} откроется ${dateToOpen.toDateString()}  ${openTime.toTimeString()}`);
       } catch (error) {
         console.error(`Ошибка при создании записи для магазина с ID ${store.id}:`, error);
       }

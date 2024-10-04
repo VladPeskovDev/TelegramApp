@@ -14,9 +14,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 
-app.use('/api', userRouter);
+app.use('/api/shops', userRouter);
 
-cron.schedule('44 21 * * *', openQueuesForAllStores);
+cron.schedule('09 23 * * *', openQueuesForAllStores);
 cron.schedule('54 21 * * *', deleteQueuesAndEntriesForToday);
 
 

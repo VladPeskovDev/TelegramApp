@@ -3,42 +3,15 @@ const userRouter = require('express').Router();
 const { Op } = require('sequelize');
 
 
-/* userRouter.route('/').post(async (req, res) => {
+userRouter.route('/').get(async (req, res) => {
   try {
-    const { telegram_id, store_id, date, first_name, last_name } = req.body;
-
-    // Проверяем, существует ли пользователь
-    let user = await User.findOne({ where: { telegram_id } });
-    if (!user) {
-      // Если пользователя нет, создаем нового
-      user = await User.create({ telegram_id, first_name, last_name, is_premium: false });
-    }
-
-    // Проверяем, существует ли очередь на указанную дату
-    const queue = await Queues.findOne({ where: { store_id, date, opened_at: { [Op.ne]: null } } });
-    if (!queue) {
-      return res.status(400).json({ message: 'Очередь на эту дату еще не открыта' });
-    }
-
-    // Проверяем, не записан ли пользователь уже на эту дату в этот магазин
-    const existingEntry = await Queue_entries.findOne({ where: { user_id: user.id, queue_id: queue.id } });
-    if (existingEntry) {
-      return res.status(400).json({ message: 'Вы уже записаны в эту очередь' });
-    }
-
-    // Определяем позицию в очереди
-    const position = await Queue_entries.count({ where: { queue_id: queue.id } }) + 1;
-
-    // Записываем пользователя в очередь
-    await Queue_entries.create({ user_id: user.id, queue_id: queue.id, position });
-
-    res.status(200).json({ message: 'Вы успешно записаны в очередь', position });
+    const stores = await Stores.findAll();
+    res.status(200).json(stores);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Ошибка при записи в очередь' });
+    console.error('Ошибка при получении магазинов:', error);
+    res.status(500).json({ message: 'Ошибка при получении магазинов' });
   }
 });
-*/
 
 
 
@@ -46,40 +19,55 @@ userRouter.route('/:store_id').get(async (req, res) => {
   const { store_id } = req.params;
 
   try {
-    // Получаем текущую дату
     const today = new Date();
-    
-    
+    today.setHours(0, 0, 0, 0); // Обнуляем время для корректного сравнения
+
+    // Получаем ближайшую очередь для данного магазина
     const queue = await Queues.findOne({
       where: {
         store_id: store_id,
         date: {
-          [Op.gte]: today, // Очередь на будущее
+          [Op.gte]: today, // Ищем очередь на текущий или будущие дни
         },
       },
+      include: [
+        {
+          model: Stores, // Присоединяем таблицу магазинов
+          as: 'store',   // Указываем алиас связи
+          attributes: ['name'], // Возвращаем только поле name
+        },
+      ],
       order: [['date', 'ASC']],
     });
 
     if (!queue) {
-      return res.status(404).json({ message: 'Очередь не найдена' });
+      return res.status(404).json({ message: 'Очередь не найдена для данного СИЗО' });
     }
 
     const isOpen = queue.opened_at && new Date() >= new Date(queue.opened_at);
 
     if (isOpen) {
-      // Если открыта, возвращаем список записанных пользователей
-      const entries = await Queue_entries.findAll({ where: { queue_id: queue.id } });
+      const entries = await Queue_entries.findAll({
+        where: { queue_id: queue.id },
+        attributes: ['user_id'], // Можно вернуть только ID пользователей
+      });
+
       return res.status(200).json({
         message: 'Очередь открыта',
         users: entries,
         queue_date: queue.date,
+        name: queue.store.name, // Используем поле name для названия магазина
       });
     } else {
-      return res.status(200).json({ message: 'Очередь закрыта', queue_date: queue.date });
+      return res.status(200).json({
+        message: 'Очередь закрыта',
+        queue_date: queue.date,
+        name: queue.store.name, // Используем поле name для названия магазина
+      });
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Ошибка получения статуса очереди' });
+    console.error('Ошибка при получении данных о СИЗО:', error);
+    res.status(500).json({ message: 'Ошибка получения данных' });
   }
 });
 

@@ -5,25 +5,15 @@ const { Queues, Stores } = require('../../db/models');
 
 async function openQueuesForAllStores() {
   const today = new Date();
-  const dayOfWeek = today.getDay(); // День недели
-
   
-  let dateToOpen;
+  // Определяем дату, на которую нужно открыть очередь
+  let dateToOpen = new Date(today);
+  dateToOpen.setDate(today.getDate() + 1); // Всегда генерируем на следующий день
 
-  if (dayOfWeek === 5 || dayOfWeek === 6) { // Пятница или Суббота
-    console.log('В пятницу и субботу очередь не генерируется, магазины закрыты.');
-    return; 
-  } else if (dayOfWeek === 0) { // Воскресенье
-    dateToOpen = new Date(today);
-    dateToOpen.setDate(today.getDate() + 1); // Генерируем на понедельник
-  } else { // С понедельника по четверг
-    dateToOpen = new Date(today);
-    dateToOpen.setDate(today.getDate() + 1); // Генерация на следующий рабочий день
-  }
-
-  
+  // Обнуляем время для корректного хранения даты
   dateToOpen.setHours(0, 0, 0, 0);
 
+  // Генерируем случайное время для открытия очередей (с 08:00 до 23:00)
   const randomHour = Math.floor(Math.random() * (23 - 8 + 1)) + 8;
   const randomMinute = Math.floor(Math.random() * 60);
   const openTime = new Date(today);
@@ -50,7 +40,7 @@ async function openQueuesForAllStores() {
           updatedAt: new Date()
         });
 
-        console.log(`Очередь в СИЗО ${store.id} откроется ${dateToOpen.toDateString()}  ${openTime.toTimeString()}`);
+        console.log(`Запись создана для магазина с ID ${store.id} и датой: ${dateToOpen.toDateString()} с временем открытия: ${openTime.toTimeString()}`);
       } catch (error) {
         console.error(`Ошибка при создании записи для магазина с ID ${store.id}:`, error);
       }
@@ -59,6 +49,7 @@ async function openQueuesForAllStores() {
     console.error('Ошибка при получении списка магазинов:', error);
   }
 }
+
 
 
 

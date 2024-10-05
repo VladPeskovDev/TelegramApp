@@ -13,35 +13,36 @@ userRouter.route('/').get(async (req, res) => {
   }
 });
 
-
-
 userRouter.route('/:store_id').get(async (req, res) => {
   const { store_id } = req.params;
 
   try {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Обнуляем время для корректного сравнения
+    today.setHours(0, 0, 0, 0); 
 
-    // Получаем ближайшую очередь для данного магазина
+    // Получаем информацию о магазине по его ID
+    const store = await Stores.findOne({
+      where: { id: store_id },
+      attributes: ['name'], // Получаем только имя магазина
+    });
+
+    if (!store) {
+      return res.status(404).json({ message: 'Магазин не найден' });
+    }
+
+    // Ищем очередь только на текущий день и конкретный магазин по его ID
     const queue = await Queues.findOne({
       where: {
-        store_id: store_id,
-        date: {
-          [Op.gte]: today, // Ищем очередь на текущий или будущие дни
-        },
+        store_id: store_id, // Ищем по переданному store_id
+        date: today,        // Ищем очередь только на текущую дату
       },
-      include: [
-        {
-          model: Stores, // Присоединяем таблицу магазинов
-          as: 'store',   // Указываем алиас связи
-          attributes: ['name'], // Возвращаем только поле name
-        },
-      ],
-      order: [['date', 'ASC']],
     });
 
     if (!queue) {
-      return res.status(404).json({ message: 'Очередь не найдена для данного СИЗО' });
+      return res.status(404).json({
+        message: `Очередь не найдена для магазина ${store.name} на текущую дату`,
+        name: store.name, // Возвращаем название магазина
+      });
     }
 
     const isOpen = queue.opened_at && new Date() >= new Date(queue.opened_at);
@@ -49,20 +50,20 @@ userRouter.route('/:store_id').get(async (req, res) => {
     if (isOpen) {
       const entries = await Queue_entries.findAll({
         where: { queue_id: queue.id },
-        attributes: ['user_id'], // Можно вернуть только ID пользователей
+        attributes: ['user_id'], // Возвращаем только ID пользователей
       });
 
       return res.status(200).json({
         message: 'Очередь открыта',
         users: entries,
         queue_date: queue.date,
-        name: queue.store.name, // Используем поле name для названия магазина
+        name: store.name, // Используем поле name для названия магазина
       });
     } else {
       return res.status(200).json({
         message: 'Очередь закрыта',
         queue_date: queue.date,
-        name: queue.store.name, // Используем поле name для названия магазина
+        name: store.name, // Используем поле name для названия магазина
       });
     }
   } catch (error) {
@@ -71,55 +72,26 @@ userRouter.route('/:store_id').get(async (req, res) => {
   }
 });
 
-/*  userRouter.route('/:store_id/today').get(async (req, res) => {
+
+/* userRouter.route('/:store_id/tomorrow').get(async (req, res) => {
   const { store_id } = req.params;
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0); // Обнуляем время для корректного сравнения
 
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
     const queue = await Queues.findOne({
       where: {
         store_id: store_id,
-        date: today,
+        date: tomorrow, // Ищем очередь на завтрашний день
       },
-    });
-
-    if (!queue) {
-      return res.status(404).json({ message: 'Очередь на сегодня не найдена' });
-    }
-
-    const isOpen = queue.opened_at && new Date() >= new Date(queue.opened_at);
-
-    if (isOpen) {
-      const entries = await Queue_entries.findAll({ where: { queue_id: queue.id } });
-      return res.status(200).json({
-        message: 'Очередь на сегодня открыта',
-        users: entries,
-        queue_date: queue.date,
-      });
-    } else {
-      return res.status(200).json({ message: 'Очередь на сегодня закрыта', queue_date: queue.date });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Ошибка получения статуса очереди на сегодня' });
-  }
-});
-
-userRouter.route('/:store_id/tomorrow').get(async (req, res) => {
-  const { store_id } = req.params;
-
-  try {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
-
-    const queue = await Queues.findOne({
-      where: {
-        store_id: store_id,
-        date: tomorrow,
-      },
+      include: [
+        {
+          model: Stores,
+          as: 'store',
+          attributes: ['name'],
+        },
+      ],
     });
 
     if (!queue) {
@@ -129,21 +101,83 @@ userRouter.route('/:store_id/tomorrow').get(async (req, res) => {
     const isOpen = queue.opened_at && new Date() >= new Date(queue.opened_at);
 
     if (isOpen) {
-      const entries = await Queue_entries.findAll({ where: { queue_id: queue.id } });
+      const entries = await Queue_entries.findAll({
+        where: { queue_id: queue.id },
+        attributes: ['user_id'],
+      });
+
       return res.status(200).json({
-        message: 'Очередь на завтра открыта',
+        message: 'Очередь открыта',
         users: entries,
         queue_date: queue.date,
+        name: queue.store.name,
       });
     } else {
-      return res.status(200).json({ message: 'Очередь на завтра закрыта', queue_date: queue.date });
+      return res.status(200).json({
+        message: 'Очередь закрыта',
+        queue_date: queue.date,
+        name: queue.store.name,
+      });
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Ошибка получения статуса очереди на завтра' });
+    console.error('Ошибка при получении данных о СИЗО:', error);
+    res.status(500).json({ message: 'Ошибка получения данных' });
+  }
+}); */
+
+
+userRouter.route('/:store_id/queue/:date').get(async (req, res) => {
+  const { store_id, date } = req.params;
+
+  try {
+    const targetDate = new Date(date);
+    targetDate.setHours(0, 0, 0, 0); // Обнуляем время для корректного сравнения
+
+    // Ищем очередь для указанного магазина на конкретную дату
+    const queue = await Queues.findOne({
+      where: {
+        store_id: store_id,
+        date: targetDate, // Ищем очередь на указанную дату
+      },
+      include: [
+        {
+          model: Stores,
+          as: 'store',
+          attributes: ['name'], // Возвращаем только поле name
+        },
+      ],
+    });
+
+    if (!queue) {
+      return res.status(404).json({ message: `Очередь не найдена для магазина ${store_id} на ${date}` });
+    }
+
+    const isOpen = queue.opened_at && new Date() >= new Date(queue.opened_at);
+
+    if (isOpen) {
+      const entries = await Queue_entries.findAll({
+        where: { queue_id: queue.id },
+        attributes: ['user_id'],
+      });
+
+      return res.status(200).json({
+        message: 'Очередь открыта',
+        users: entries,
+        queue_date: queue.date,
+        name: queue.store.name,
+      });
+    } else {
+      return res.status(200).json({
+        message: 'Очередь закрыта',
+        queue_date: queue.date,
+        name: queue.store.name,
+      });
+    }
+  } catch (error) {
+    console.error('Ошибка при получении данных о магазине:', error);
+    res.status(500).json({ message: 'Ошибка получения данных' });
   }
 });
- */
 
 
 

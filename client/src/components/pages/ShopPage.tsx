@@ -1,21 +1,39 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import useShop from '../hooks/useShop'; // Подключаем кастомный хук для получения данных магазина
+import useShopQueueByDate from '../hooks/useShopQueueByDate';
 
 export default function ShopPage(): JSX.Element {
   const { id } = useParams<{ id: string }>(); 
-  const { shop } = useShop(id || '');
+  const { queue, loading, error, fetchQueueByDate } = useShopQueueByDate();
 
-  if (!shop) {
-    return <p>Открытых очередей нет для данного СИЗО</p>;
+  const today = new Date().toISOString().split('T')[0]; 
+
+  
+  useEffect(() => {
+    if (id) {
+      fetchQueueByDate(id, today); 
+    }
+  }, [id]); 
+
+  
+  if (loading) {
+    return <p>Загрузка...</p>;
+  }
+
+ 
+  if (error) {
+    return <p>Ошибка: очередь не найдена</p>;
   }
 
   
+  if (!queue) {
+    return <p>Открытых очередей нет для данного СИЗО</p>;
+  }
+
   return (
     <div>
-      <h1>{shop.name}</h1> {/* Отображаем название магазина */}
-     
-      {/* Здесь можно добавить другую информацию о магазине */}
+      <h2>{queue.name}</h2> 
+      <h3>{queue.message}</h3> 
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { AxiosResponse } from "axios";
 import ShopService from "../../services/ShopService";
 // eslint-disable-next-line import/no-duplicates
-import type { EditShopType, ShopDataType, ShopType} from "../../types/ShopTypes";
+import type { EditShopType, ShopDataType, ShopType, ShopQueueResponse } from "../../types/ShopTypes";
 // eslint-disable-next-line import/no-duplicates
 import { type ApiResponce } from "../../types/ShopTypes";
 
@@ -23,6 +23,21 @@ export const getShopsThunk = createAsyncThunk<ApiResponce>(
         }
       );
 
+    /* export const getShopQueueTomorrowThunk = createAsyncThunk<ShopType, number>(
+  'shops/getQueueTomorrow',
+  async (id: number) => {
+    const data = await ShopService.getShopQueueTomorrow(id); // Вызываем сервис с axios
+    return data;
+  }
+); */
+/* export const getShopQueueByDateThunk = createAsyncThunk<ShopQueueResponse, { id: string, date: string }>(
+  'shops/getQueueByDate',
+  async ({ id, date }) => {
+    const data = await ShopService.getShopQueueByDate(id, date);
+    return data;
+  }
+);
+*/
 
 
     

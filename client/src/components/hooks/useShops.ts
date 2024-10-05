@@ -1,7 +1,6 @@
-import type React from 'react';
 import { useEffect } from 'react';
 import {  getShopsThunk } from '../../redux/shops/ShopAsyncActions';
-import type { EditShopType, ShopType } from '../../types/ShopTypes';
+import type {  ShopType } from '../../types/ShopTypes';
 import { useAppDispatch, useAppSelector } from './reduxHooks';
 
 export default function useShops(): {

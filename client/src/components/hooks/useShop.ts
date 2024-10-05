@@ -12,10 +12,9 @@ export default function useShop(id: string): {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    // Преобразуем id в число перед отправкой в thunk
+    
     const numericId = Number(id);
 
-    // Если id корректный (не NaN), отправляем запрос
     // eslint-disable-next-line no-restricted-globals
     if (!isNaN(numericId)) {
       void dispatch(getShopByIdThunk(numericId));

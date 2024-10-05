@@ -1,11 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 import ShopsSlice from './shops/ShopsSlice';
-
+import ShopsDataSlice from './shops/ShopsDateSlice';
 
 
 export const store = configureStore({
     reducer: {
         shops: ShopsSlice.reducer,
+        shopsDate: ShopsDataSlice.reducer
        
     },
   })

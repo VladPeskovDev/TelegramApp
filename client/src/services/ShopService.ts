@@ -1,7 +1,7 @@
 import type { AxiosInstance} from "axios";
 import apiInstance from "./apiInstance";
 import { ShopSchema, ShopsSchema } from "../utils/validatorsShop";
-import type { ApiResponce, ShopType, ShopDataType } from "../types/ShopTypes";
+import type { ApiResponce, ShopType, ShopDataType, ShopQueueResponse } from "../types/ShopTypes";
 
 
 class ShopService {
@@ -16,6 +16,16 @@ class ShopService {
         const {data} = await this.api.get<ShopType>(`/shops/${id}`);
         return ShopSchema.parse(data);
     }
+
+   /* async getShopQueueTomorrow(id: number): Promise<ShopType> {
+    const response = await this.api.get(`/api/shops/${id}/tomorrow`); 
+    return ShopSchema.parse(response.data); 
+  } */
+
+    /* async getShopQueueByDate(store_id: string, date: string): Promise<ShopQueueResponse> {
+        const { data } = await this.api.get(`/shops/${store_id}/queue/${date}`);
+        return data as ShopQueueResponse; // Добавляем тип для возвращаемого объекта
+      } */
 
 } 
 

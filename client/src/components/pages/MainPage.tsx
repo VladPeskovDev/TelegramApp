@@ -12,10 +12,10 @@ export default function MainPage(): JSX.Element {
         display: 'flex',
         flexWrap: 'wrap',
         justifyContent: 'center',
-        gap: '16px', // Расстояние между карточками
+        gap: '16px', 
         padding: '20px',
         '@media (max-width: 600px)': {
-          flexDirection: 'column', // На мобильных устройствах карточки выстраиваются вертикально
+          flexDirection: 'column', 
           alignItems: 'center',
         },
       }}
@@ -25,7 +25,7 @@ export default function MainPage(): JSX.Element {
           <Card
             sx={{
               width: '250px',
-              height: '250px', // Квадратные карточки
+              height: '250px', 
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',

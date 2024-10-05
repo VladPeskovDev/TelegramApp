@@ -1,13 +1,19 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Container } from '@mui/material';
-import NavBar from './ui/NavBar';
+import Navbar from './ui/NavBar';
 
 export default function Layout(): JSX.Element {
+  const location = useLocation();
+
+  
+  const showNavbar = location.pathname !== '/';
+
   return (
-    <Container maxWidth="xl">
-      <NavBar />
+    <Container maxWidth="lg">
+      {showNavbar && <Navbar />}
       <Outlet />
     </Container>
   );
-}
+};
+

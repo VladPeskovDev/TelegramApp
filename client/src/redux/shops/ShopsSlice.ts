@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { ShopType } from '../../types/ShopTypes';
-import { getShopsThunk, getShopByIdThunk } from './ShopAsyncActions';
+import { getShopsThunk, getShopByIdThunk} from './ShopAsyncActions';
 
 type InitialStateType = {
   data: ShopType[];

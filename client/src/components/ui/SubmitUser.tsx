@@ -3,26 +3,26 @@ import { Box, Button, Modal, TextField, Typography } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import useShopQueueByDate from '../hooks/useShopQueueByDate'; 
 
+
 type SubmitUserProps = {
   open: boolean;
   onClose: () => void;
+  selectedDate: string; 
 };
 
-export default function SubmitUser({ open, onClose }: SubmitUserProps): JSX.Element {
+export default function SubmitUser({ open, onClose, selectedDate }: SubmitUserProps): JSX.Element {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   
-  const { id } = useParams<{ id: string }>(); // Получаем id магазина
-  const { signupForQueue } = useShopQueueByDate(); // Подключаем хук
+  const { id } = useParams<{ id: string }>(); 
+  const { signupForQueue } = useShopQueueByDate(); 
 
   const handleSubmit = async (): Promise<void> => {
     if (id) {
       try {
-        
-        await signupForQueue(id, new Date().toISOString().split('T')[0], firstName, lastName, null); // id, текущая дата, имя, фамилия, telegram_id
-
-        // После успешной записи перезагружаем страницу
-        window.location.reload(); 
+        // Используем выбранную дату
+        await signupForQueue(id, selectedDate, firstName, lastName, null); 
+        window.location.reload(); // Перезагружаем страницу после успешной записи
       } catch (error) {
         console.error('Ошибка при записи в очередь:', error);
       }

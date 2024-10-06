@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Button } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Button, TextField } from '@mui/material';
 import useShopQueueByDate from '../hooks/useShopQueueByDate';
 import SubmitUser from '../ui/SubmitUser'; 
 import DeleteUser from '../ui/DeleteUser'; 
@@ -10,14 +10,14 @@ export default function ShopPage(): JSX.Element {
   const { queue, loading, error, fetchQueueByDate } = useShopQueueByDate();
   const [isModalOpen, setIsModalOpen] = useState(false); 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); 
-
-  const today = new Date().toISOString().split('T')[0]; 
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]); 
+  
 
   useEffect(() => {
-    if (id) {
-      fetchQueueByDate(id, today); 
+    if (id && selectedDate) {
+      fetchQueueByDate(id, selectedDate); // Используем выбранную дату
     }
-  }, [id]); 
+  }, [id, selectedDate]); // Обновляем данные при изменении id или даты
 
   const handleOpenModal = (): void => {
     setIsModalOpen(true);
@@ -25,6 +25,10 @@ export default function ShopPage(): JSX.Element {
 
   const handleCloseModal = (): void => {
     setIsModalOpen(false);
+  };
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    setSelectedDate(e.target.value); // Обновляем выбранную дату
   };
 
   const handleSubmitUser = (firstName: string, lastName: string): void => {
@@ -35,6 +39,8 @@ export default function ShopPage(): JSX.Element {
   const handleOpenDeleteModal = (): void => {
     setIsDeleteModalOpen(true);
   };
+
+ 
 
   const handleCloseDeleteModal = (): void => {
     setIsDeleteModalOpen(false);
@@ -50,7 +56,7 @@ export default function ShopPage(): JSX.Element {
   }
 
   if (error) {
-    return <p>Ошибка: очередь не найдена</p>;
+    return <p>Очередь не найдена, перезагрузите страницу</p>;
   }
 
   if (!queue) {
@@ -61,6 +67,18 @@ export default function ShopPage(): JSX.Element {
     <div>
       <h2>{queue.name}</h2> 
       <h3>{queue.message}</h3> 
+
+      {/* Добавляем поле для выбора даты */}
+      <TextField
+        label="Выберите дату"
+        type="date"
+        value={selectedDate}
+        onChange={handleDateChange} // Обрабатываем изменение даты
+        sx={{ marginBottom: 2 }}
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
 
       {/* Проверяем наличие пользователей */}
       {queue.users && queue.users.length > 0 ? (
@@ -101,7 +119,7 @@ export default function ShopPage(): JSX.Element {
       </div>
 
       {/* Модальные окна */}
-      <SubmitUser open={isModalOpen} onClose={handleCloseModal} onSubmit={handleSubmitUser} />
+      <SubmitUser open={isModalOpen} onClose={handleCloseModal} onSubmit={handleSubmitUser} selectedDate={selectedDate} /> {/* Передаем выбранную дату */}
       <DeleteUser open={isDeleteModalOpen} onClose={handleCloseDeleteModal} onDelete={handleDeleteUser} />
     </div>
   );

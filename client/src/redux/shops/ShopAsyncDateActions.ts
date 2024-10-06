@@ -11,4 +11,11 @@ export const getShopQueueByDateThunk = createAsyncThunk<ShopQueueResponse, { id:
       return data;
     }
   );
+
+  export const signupForQueueThunk = createAsyncThunk<void, { id: string, date: string, first_name: string, last_name: string, telegram_id: string | null }>(
+    'shops/signupForQueue',
+    async ({ id, date, first_name, last_name, telegram_id }) => {
+      await ShopDataService.signupForQueue(id, date, first_name, last_name, telegram_id);
+    }
+  );
   

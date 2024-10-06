@@ -1,6 +1,5 @@
-// redux/shops/ShopsSlice.ts
 import { createSlice } from '@reduxjs/toolkit';
-import { getShopQueueByDateThunk } from './ShopAsyncDateActions';
+import { getShopQueueByDateThunk, signupForQueueThunk } from './ShopAsyncDateActions';
 import type { ShopQueueResponse } from '../../types/ShopTypes';
 
 type InitialStateType = {
@@ -31,6 +30,13 @@ const ShopsSlice = createSlice({
     builder.addCase(getShopQueueByDateThunk.rejected, (state, { error }) => {
       state.loading = false;
       state.error = error.message || 'Ошибка загрузки данных';
+    });
+    builder.addCase(signupForQueueThunk.fulfilled, (state) => {
+      state.signupSuccess = true;
+    });
+    builder.addCase(signupForQueueThunk.rejected, (state, { error }) => {
+      state.signupSuccess = false;
+      state.error = error.message || 'Ошибка записи в очередь';
     });
   },
 });

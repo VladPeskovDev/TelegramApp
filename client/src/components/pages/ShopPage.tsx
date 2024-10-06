@@ -42,7 +42,6 @@ export default function ShopPage(): JSX.Element {
 
   const handleDeleteUser = (): void => {
     console.log('Запись удалена');
-    
     setIsDeleteModalOpen(false);
   };
 
@@ -63,8 +62,8 @@ export default function ShopPage(): JSX.Element {
       <h2>{queue.name}</h2> 
       <h3>{queue.message}</h3> 
 
-      
-      {queue.users.length > 0 ? (
+      {/* Проверяем наличие пользователей */}
+      {queue.users && queue.users.length > 0 ? (
         <TableContainer component={Paper} sx={{ marginTop: '20px' }}>
           <Table>
             <TableHead>
@@ -76,10 +75,10 @@ export default function ShopPage(): JSX.Element {
             </TableHead>
             <TableBody>
               {queue.users.map((user, index) => (
-                <TableRow key={user.user_id}>
+                <TableRow key={user.user_id || index}>
                   <TableCell>{index + 1}</TableCell> {/* Порядковый номер */}
-                  <TableCell>{user.last_name}</TableCell> 
-                  <TableCell>{user.first_name}</TableCell> 
+                  <TableCell>{user.user?.last_name}</TableCell> {/* Фамилия */}
+                  <TableCell>{user.user?.first_name}</TableCell> {/* Имя */}
                 </TableRow>
               ))}
             </TableBody>
@@ -101,9 +100,8 @@ export default function ShopPage(): JSX.Element {
         </Button>
       </div>
 
-      
+      {/* Модальные окна */}
       <SubmitUser open={isModalOpen} onClose={handleCloseModal} onSubmit={handleSubmitUser} />
-
       <DeleteUser open={isDeleteModalOpen} onClose={handleCloseDeleteModal} onDelete={handleDeleteUser} />
     </div>
   );

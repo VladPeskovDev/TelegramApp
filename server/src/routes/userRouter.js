@@ -13,65 +13,6 @@ userRouter.route('/').get(async (req, res) => {
   }
 });
 
-/* userRouter.route('/:store_id').get(async (req, res) => {
-  const { store_id } = req.params;
-
-  try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); 
-
-    // Получаем информацию о магазине по его ID
-    const store = await Stores.findOne({
-      where: { id: store_id },
-      attributes: ['name'], // Получаем только имя магазина
-    });
-
-    if (!store) {
-      return res.status(404).json({ message: 'Магазин не найден' });
-    }
-
-    // Ищем очередь только на текущий день и конкретный магазин по его ID
-    const queue = await Queues.findOne({
-      where: {
-        store_id: store_id, // Ищем по переданному store_id
-        date: today,        // Ищем очередь только на текущую дату
-      },
-    });
-
-    if (!queue) {
-      return res.status(404).json({
-        message: `Очередь не найдена для магазина ${store.name} на текущую дату`,
-        name: store.name, // Возвращаем название магазина
-      });
-    }
-
-    const isOpen = queue.opened_at && new Date() >= new Date(queue.opened_at);
-
-    if (isOpen) {
-      const entries = await Queue_entries.findAll({
-        where: { queue_id: queue.id },
-        attributes: ['user_id'], // Возвращаем только ID пользователей
-      });
-
-      return res.status(200).json({
-        message: 'Очередь открыта',
-        users: entries,
-        queue_date: queue.date,
-        name: store.name, // Используем поле name для названия магазина
-      });
-    } else {
-      return res.status(200).json({
-        message: 'Очередь закрыта',
-        queue_date: queue.date,
-        name: store.name, // Используем поле name для названия магазина
-      });
-    }
-  } catch (error) {
-    console.error('Ошибка при получении данных о СИЗО:', error);
-    res.status(500).json({ message: 'Ошибка получения данных' });
-  }
-}); */
-
 
 userRouter.route('/:store_id/queue/:date').get(async (req, res) => {
   const { store_id, date } = req.params;
@@ -140,7 +81,7 @@ const temporaryTelegramId = `${first_name}_${last_name}_test`;
 
 userRouter.route('/:store_id/queue/:date/signup').post(async (req, res) => {
   const { store_id, date } = req.params;
-  const { first_name, last_name } = req.body;  // Пока мы не используем telegram_id
+  const { first_name, last_name } = req.body;
 
   try {
     // Шаг 1: Найти или создать пользователя
@@ -152,7 +93,7 @@ userRouter.route('/:store_id/queue/:date/signup').post(async (req, res) => {
       user = await User.create({
         first_name,
         last_name,
-        telegram_id: temporaryTelegramId,  // Устанавливаем null для telegram_id, т.к. его пока нет
+        telegram_id: temporaryTelegramId,  // Используем временный идентификатор
       });
     }
 
@@ -171,7 +112,13 @@ userRouter.route('/:store_id/queue/:date/signup').post(async (req, res) => {
       return res.status(404).json({ message: 'Очередь не найдена на указанную дату для данного магазина' });
     }
 
-    // Шаг 3: Проверить, записан ли пользователь уже на эту дату в эту очередь
+    // Шаг 3: Проверка, открыта ли очередь
+    const now = new Date();
+    if (!queue.opened_at || now < new Date(queue.opened_at)) {
+      return res.status(403).json({ message: 'Очередь еще не открыта для записи' });
+    }
+
+    // Шаг 4: Проверить, записан ли пользователь уже на эту дату в эту очередь
     const existingEntry = await Queue_entries.findOne({
       where: {
         user_id: user.id,
@@ -183,12 +130,12 @@ userRouter.route('/:store_id/queue/:date/signup').post(async (req, res) => {
       return res.status(400).json({ message: 'Вы уже записаны в эту очередь на указанную дату' });
     }
 
-    // Шаг 4: Найти текущую позицию в очереди
+    // Шаг 5: Найти текущую позицию в очереди
     const currentEntriesCount = await Queue_entries.count({
       where: { queue_id: queue.id },
     });
 
-    // Шаг 5: Добавить запись в очередь
+    // Шаг 6: Добавить запись в очередь
     const newEntry = await Queue_entries.create({
       queue_id: queue.id,
       user_id: user.id,

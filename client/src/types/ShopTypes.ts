@@ -15,11 +15,14 @@ export type EditShopType = {
 
 export type QueueEntry = {
     user_id: number;
+    name: string;
+    first_name: string;
+    last_name: string;
   };
   
   export type ShopQueueResponse = {
     message: string;
     users: QueueEntry[];
-    queue_date: string; // Это будет дата в формате строки (например, ISO)
-    name: string; // Название магазина
+    queue_date: string; 
+    name: string; 
   };

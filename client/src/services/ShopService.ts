@@ -17,16 +17,6 @@ class ShopService {
         return ShopSchema.parse(data);
     }
 
-   /* async getShopQueueTomorrow(id: number): Promise<ShopType> {
-    const response = await this.api.get(`/api/shops/${id}/tomorrow`); 
-    return ShopSchema.parse(response.data); 
-  } */
-
-    /* async getShopQueueByDate(store_id: string, date: string): Promise<ShopQueueResponse> {
-        const { data } = await this.api.get(`/shops/${store_id}/queue/${date}`);
-        return data as ShopQueueResponse; // Добавляем тип для возвращаемого объекта
-      } */
-
 } 
 
 export default new ShopService(apiInstance);

@@ -4,7 +4,6 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Queues extends Model {
     static associate(models) {
-      // Связь с таблицей stores
       this.belongsTo(models.Stores, {
         foreignKey: 'store_id',
         as: 'store',
@@ -29,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     opened_at: {
       type: DataTypes.DATE,
-      allowNull: true, // Может быть null, если очередь еще не открылась
+      allowNull: true, 
     },
   }, {
     sequelize,

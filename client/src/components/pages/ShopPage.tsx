@@ -5,19 +5,41 @@ import useShopQueueByDate from '../hooks/useShopQueueByDate';
 import SubmitUser from '../ui/SubmitUser'; 
 import DeleteUser from '../ui/DeleteUser'; 
 
+declare global {
+  interface Window {
+    Telegram: any;
+  }
+}
+
 export default function ShopPage(): JSX.Element {
   const { id } = useParams<{ id: string }>(); 
   const { queue, loading, error, fetchQueueByDate } = useShopQueueByDate();
   const [isModalOpen, setIsModalOpen] = useState(false); 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); 
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]); 
-  
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [telegramId, setTelegramId] = useState<string | null>(null); 
+
+  // useEffect для получения Telegram ID
+  useEffect(() => {
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.ready(); // Инициализация WebApp
+      const tgId = window.Telegram.WebApp.initDataUnsafe?.user?.id?.toString();
+      if (tgId) {
+        setTelegramId(tgId);
+        console.log("Telegram ID получен:", tgId);
+      } else {
+        console.error("Telegram ID не получен. Запустите приложение через Telegram.");
+      }
+    } else {
+      console.error("Telegram WebApp API не доступен.");
+    }
+  }, []);
 
   useEffect(() => {
     if (id && selectedDate) {
-      fetchQueueByDate(id, selectedDate); // Используем выбранную дату
+      fetchQueueByDate(id, selectedDate); 
     }
-  }, [id, selectedDate]); // Обновляем данные при изменении id или даты
+  }, [id, selectedDate]);
 
   const handleOpenModal = (): void => {
     setIsModalOpen(true);
@@ -28,7 +50,7 @@ export default function ShopPage(): JSX.Element {
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setSelectedDate(e.target.value); // Обновляем выбранную дату
+    setSelectedDate(e.target.value);
   };
 
   const handleSubmitUser = (firstName: string, lastName: string): void => {
@@ -39,8 +61,6 @@ export default function ShopPage(): JSX.Element {
   const handleOpenDeleteModal = (): void => {
     setIsDeleteModalOpen(true);
   };
-
- 
 
   const handleCloseDeleteModal = (): void => {
     setIsDeleteModalOpen(false);
@@ -68,19 +88,17 @@ export default function ShopPage(): JSX.Element {
       <h2>{queue.name}</h2> 
       <h3>{queue.message}</h3> 
 
-      {/* Добавляем поле для выбора даты */}
       <TextField
         label="Выберите дату"
         type="date"
         value={selectedDate}
-        onChange={handleDateChange} // Обрабатываем изменение даты
+        onChange={handleDateChange} 
         sx={{ marginBottom: 2 }}
         InputLabelProps={{
           shrink: true,
         }}
       />
 
-      {/* Проверяем наличие пользователей */}
       {queue.users && queue.users.length > 0 ? (
         <TableContainer component={Paper} sx={{ marginTop: '20px' }}>
           <Table>
@@ -94,9 +112,9 @@ export default function ShopPage(): JSX.Element {
             <TableBody>
               {queue.users.map((user, index) => (
                 <TableRow key={user.user_id || index}>
-                  <TableCell>{index + 1}</TableCell> {/* Порядковый номер */}
-                  <TableCell>{user.user?.last_name}</TableCell> {/* Фамилия */}
-                  <TableCell>{user.user?.first_name}</TableCell> {/* Имя */}
+                  <TableCell>{index + 1}</TableCell> 
+                  <TableCell>{user.user?.last_name}</TableCell> 
+                  <TableCell>{user.user?.first_name}</TableCell> 
                 </TableRow>
               ))}
             </TableBody>
@@ -118,8 +136,13 @@ export default function ShopPage(): JSX.Element {
         </Button>
       </div>
 
-      {/* Модальные окна */}
-      <SubmitUser open={isModalOpen} onClose={handleCloseModal} onSubmit={handleSubmitUser} selectedDate={selectedDate} /> {/* Передаем выбранную дату */}
+      <SubmitUser 
+        open={isModalOpen} 
+        onClose={handleCloseModal} 
+        onSubmit={handleSubmitUser} 
+        selectedDate={selectedDate} 
+        telegramId={telegramId} 
+      />
       <DeleteUser open={isDeleteModalOpen} onClose={handleCloseDeleteModal} onDelete={handleDeleteUser} />
     </div>
   );

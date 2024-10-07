@@ -1,30 +1,34 @@
 import React, { useState } from 'react';
 import { Box, Button, Modal, TextField, Typography } from '@mui/material';
 import { useParams } from 'react-router-dom';
-import useShopQueueByDate from '../hooks/useShopQueueByDate'; 
-
+import useShopQueueByDate from '../hooks/useShopQueueByDate';
 
 type SubmitUserProps = {
   open: boolean;
   onClose: () => void;
-  selectedDate: string; 
+  selectedDate: string;
 };
 
-export default function SubmitUser({ open, onClose, selectedDate }: SubmitUserProps): JSX.Element {
+export default function SubmitUser({
+  open,
+  onClose,
+  selectedDate,
+}: SubmitUserProps): JSX.Element {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  
-  const { id } = useParams<{ id: string }>(); 
-  const { signupForQueue } = useShopQueueByDate(); 
+
+  const { id } = useParams<{ id: string }>();
+  const { signupForQueue } = useShopQueueByDate();
 
   const handleSubmit = async (): Promise<void> => {
     if (id) {
       try {
-        // Используем выбранную дату
-        await signupForQueue(id, selectedDate, firstName, lastName, null); 
-        window.location.reload(); // Перезагружаем страницу после успешной записи
+        // Отправляем данные на сервер
+        await signupForQueue(id, selectedDate, firstName, lastName);
+        alert('Запись в очередь завершена успешно.');
       } catch (error) {
         console.error('Ошибка при записи в очередь:', error);
+        alert('Произошла ошибка при записи в очередь.');
       }
     }
     setFirstName('');
@@ -34,7 +38,16 @@ export default function SubmitUser({ open, onClose, selectedDate }: SubmitUserPr
 
   return (
     <Modal open={open} onClose={onClose}>
-      <Box sx={{ padding: 4, backgroundColor: 'white', margin: 'auto', maxWidth: '400px', borderRadius: '8px', mt: '20vh' }}>
+      <Box
+        sx={{
+          padding: 4,
+          backgroundColor: 'white',
+          margin: 'auto',
+          maxWidth: '400px',
+          borderRadius: '8px',
+          mt: '20vh',
+        }}
+      >
         <Typography variant="h6" gutterBottom>
           Записаться в очередь
         </Typography>

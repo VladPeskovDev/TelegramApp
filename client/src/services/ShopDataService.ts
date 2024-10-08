@@ -19,6 +19,16 @@ class ShopDataService {
         telegram_id,
       });
     }
+
+    async deleteQueueEntry(store_id: string, date: string, telegram_id: string | null): Promise<void> {
+      await this.api.delete(`/shops/${store_id}/queue/${date}/delete`, {
+        data: {
+          telegram_id,
+        },
+      });
+    }
   }
+
+  
 
 export default new ShopDataService(apiInstance);

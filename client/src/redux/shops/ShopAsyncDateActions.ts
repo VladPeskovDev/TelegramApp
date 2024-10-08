@@ -19,3 +19,10 @@ export const getShopQueueByDateThunk = createAsyncThunk<ShopQueueResponse, { id:
     }
   );
   
+
+  export const deleteQueueEntryThunk = createAsyncThunk<void, { id: string, date: string, telegram_id: string | null }>(
+    'shops/deleteQueueEntry',
+    async ({ id, date, telegram_id }) => {
+      await ShopDataService.deleteQueueEntry(id, date, telegram_id);
+    }
+  );

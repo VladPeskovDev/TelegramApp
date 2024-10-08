@@ -21,7 +21,6 @@ userRouter.route('/:store_id/queue/:date').get(async (req, res) => {
     const targetDate = new Date(date);
     targetDate.setHours(0, 0, 0, 0); // Обнуляем время для корректного сравнения
 
-    // Ищем очередь для указанного магазина на конкретную дату
     const queue = await Queues.findOne({
       where: {
         store_id: store_id,
@@ -45,7 +44,6 @@ userRouter.route('/:store_id/queue/:date').get(async (req, res) => {
     const isOpen = queue.opened_at && new Date() >= new Date(queue.opened_at);
 
     if (isOpen) {
-      // Теперь мы присоединяем пользователей и их данные
       const entries = await Queue_entries.findAll({
         where: { queue_id: queue.id },
         include: [
@@ -76,31 +74,37 @@ userRouter.route('/:store_id/queue/:date').get(async (req, res) => {
   }
 });
 
-/*const first_name = 'test';
-const last_name = 'test';
-const temporaryTelegramId = `${first_name}_${last_name}_test`;
 
 userRouter.route('/:store_id/queue/:date/signup').post(async (req, res) => {
   const { store_id, date } = req.params;
-  const { first_name, last_name } = req.body;
+  const { first_name, last_name, telegram_id } = req.body;
+  
 
   try {
-    // Шаг 1: Найти или создать пользователя
+    if (!telegram_id || !first_name || !last_name) {
+      return res.status(400).json({ message: 'Необходимо предоставить telegram_id, first_name и last_name' });
+    }
+
+    
+    const cleanFirstName = first_name.trim();
+    const cleanLastName = last_name.trim();
+
+    // Шаг 1: Найти или создать пользователя по telegram_id
     let user = await User.findOne({
-      where: { first_name, last_name },  // Временно используем first_name и last_name вместо telegram_id
+      where: { telegram_id },
     });
 
     if (!user) {
       user = await User.create({
-        first_name,
-        last_name,
-        telegram_id: temporaryTelegramId,  // Используем временный идентификатор
+        first_name: cleanFirstName,
+        last_name: cleanLastName,
+        telegram_id,
       });
     }
 
     // Шаг 2: Проверить наличие очереди на указанную дату для магазина
     const targetDate = new Date(date);
-    targetDate.setHours(0, 0, 0, 0);
+    targetDate.setHours(0, 0, 0, 0); 
 
     const queue = await Queues.findOne({
       where: {
@@ -131,16 +135,23 @@ userRouter.route('/:store_id/queue/:date/signup').post(async (req, res) => {
       return res.status(400).json({ message: 'Вы уже записаны в эту очередь на указанную дату' });
     }
 
-    // Шаг 5: Найти текущую позицию в очереди
+    // Шаг 5: Обновляем имя и фамилию пользователя, если необходимо
+    if (user.first_name !== cleanFirstName || user.last_name !== cleanLastName) {
+      user.first_name = cleanFirstName;
+      user.last_name = cleanLastName;
+      await user.save();
+    }
+
+    // Шаг 6: Найти текущую позицию в очереди
     const currentEntriesCount = await Queue_entries.count({
       where: { queue_id: queue.id },
     });
 
-    // Шаг 6: Добавить запись в очередь
+    // Шаг 7: Добавить запись в очередь
     const newEntry = await Queue_entries.create({
       queue_id: queue.id,
       user_id: user.id,
-      position: currentEntriesCount + 1,  // Назначаем позицию в очереди
+      position: currentEntriesCount + 1, 
     });
 
     res.status(201).json({
@@ -148,38 +159,6 @@ userRouter.route('/:store_id/queue/:date/signup').post(async (req, res) => {
       queueEntry: newEntry,
     });
 
-  } catch (error) {
-    console.error('Ошибка записи в очередь:', error);
-    res.status(500).json({ message: 'Ошибка записи в очередь' });
-  }
-}); */
-
-userRouter.route('/:store_id/queue/:date/signup').post(async (req, res) => {
-  const { store_id, date } = req.params;
-
-  // Проверяем наличие telegram_id в теле запроса или из webhook
-  const telegramIdFromRequest = req.body.telegram_id; // Ожидаем, что telegram_id передается в теле запроса
-
-  console.log('Store ID:', store_id);
-  console.log('Date:', date);
-  console.log('Telegram ID (from request):', telegramIdFromRequest);
-
-  if (!telegramIdFromRequest) {
-    console.log('Telegram ID отсутствует в запросе');
-    return res.status(400).json({ message: 'Telegram ID обязателен для записи' });
-  }
-
-  try {
-    const user = await User.findOne({
-      where: { telegram_id: telegramIdFromRequest },
-    });
-
-    if (!user) {
-      return res.status(404).json({ message: 'Пользователь с таким Telegram ID не найден' });
-    }
-
-    // Дальнейшая логика работы с очередью...
-    res.status(201).json({ message: 'Запись в очередь успешно выполнена' });
   } catch (error) {
     console.error('Ошибка записи в очередь:', error);
     res.status(500).json({ message: 'Ошибка записи в очередь' });

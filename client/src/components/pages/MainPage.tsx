@@ -1,10 +1,14 @@
 import React from 'react';
 import { Card, CardContent, Typography, Box } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useParams, useLocation  } from 'react-router-dom';
 import useShops from '../hooks/useShops';
 
 export default function MainPage(): JSX.Element {
+  const { id } = useParams<{ id: string }>();
   const { shops } = useShops(); 
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const telegramId = queryParams.get('telegram_id');
 
   return (
     <Box
@@ -21,7 +25,7 @@ export default function MainPage(): JSX.Element {
       }}
     >
       {shops.map((shop) => (
-        <Link key={shop.id} to={`/shop/${shop.id}`} style={{ textDecoration: 'none' }}>
+        <Link key={shop.id} to={`/shop/${shop.id}${telegramId ? `?telegram_id=${telegramId}` : ''}`} style={{ textDecoration: 'none' }}>
           <Card
             sx={{
               width: '250px',

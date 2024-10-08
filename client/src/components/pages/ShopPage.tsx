@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, Typography, Button, TextField
@@ -8,12 +8,19 @@ import useShopQueueByDate from '../hooks/useShopQueueByDate';
 import SubmitUser from '../ui/SubmitUser';
 import DeleteUser from '../ui/DeleteUser';
 
+
+
 export default function ShopPage(): JSX.Element {
   const { id } = useParams<{ id: string }>();
   const { queue, loading, error, fetchQueueByDate } = useShopQueueByDate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedStoreId, setSelectedStoreId] = useState('');
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const telegramId = queryParams.get('telegram_id');
+
 
   useEffect(() => {
     if (id && selectedDate) {
@@ -56,7 +63,7 @@ export default function ShopPage(): JSX.Element {
   }
 
   if (error) {
-    return <p>Очередь не найдена, перезагрузите страницу</p>;
+    return <Button variant="contained" color="primary" onClick={() => window.location.reload()}>Очередь не найдена, вернитесь назад</Button>;
   }
 
   if (!queue) {
@@ -120,11 +127,14 @@ export default function ShopPage(): JSX.Element {
         open={isModalOpen}
         onClose={handleCloseModal}
         selectedDate={selectedDate}
+        telegramId={telegramId}
       />
       <DeleteUser
         open={isDeleteModalOpen}
         onClose={handleCloseDeleteModal}
-        onDelete={handleDeleteUser}
+        storeId={selectedStoreId}
+        date={selectedDate}
+        telegramId={telegramId}
       />
     </div>
   );

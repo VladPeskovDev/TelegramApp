@@ -1,32 +1,32 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
-import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Typography, Button, TextField
-} from '@mui/material';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Paper, Typography, Button, TextField } from '@mui/material';
 import useShopQueueByDate from '../hooks/useShopQueueByDate';
 import SubmitUser from '../ui/SubmitUser';
 import DeleteUser from '../ui/DeleteUser';
 
-
-
 export default function ShopPage(): JSX.Element {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate(); 
   const { queue, loading, error, fetchQueueByDate } = useShopQueueByDate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [selectedStoreId, setSelectedStoreId] = useState('');
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const telegramId = queryParams.get('telegram_id');
 
-
   useEffect(() => {
+    if (!id) {
+      navigate('/error'); 
+      return;
+    }
+
     if (id && selectedDate) {
       fetchQueueByDate(id, selectedDate);
     }
-  }, [id, selectedDate]);
+  }, [id, selectedDate, navigate]);
 
   const handleOpenModal = (): void => {
     setIsModalOpen(true);
@@ -40,21 +40,11 @@ export default function ShopPage(): JSX.Element {
     setSelectedDate(e.target.value);
   };
 
-  const handleSubmitUser = (firstName: string, lastName: string): void => {
-    console.log('Пользователь записан:', firstName, lastName);
-    setIsModalOpen(false);
-  };
-
   const handleOpenDeleteModal = (): void => {
     setIsDeleteModalOpen(true);
   };
 
   const handleCloseDeleteModal = (): void => {
-    setIsDeleteModalOpen(false);
-  };
-
-  const handleDeleteUser = (): void => {
-    console.log('Запись удалена');
     setIsDeleteModalOpen(false);
   };
 
@@ -122,6 +112,7 @@ export default function ShopPage(): JSX.Element {
           Удалить запись
         </Button>
       </div>
+      
 
       <SubmitUser
         open={isModalOpen}
@@ -129,13 +120,16 @@ export default function ShopPage(): JSX.Element {
         selectedDate={selectedDate}
         telegramId={telegramId}
       />
-      <DeleteUser
-        open={isDeleteModalOpen}
-        onClose={handleCloseDeleteModal}
-        storeId={selectedStoreId}
-        date={selectedDate}
-        telegramId={telegramId}
-      />
+
+      {id && (
+        <DeleteUser
+          open={isDeleteModalOpen}
+          onClose={handleCloseDeleteModal}
+          storeId={id}  
+          date={selectedDate}
+          telegramId={telegramId}
+        />
+      )}
     </div>
   );
 }

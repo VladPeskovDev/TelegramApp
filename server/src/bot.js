@@ -14,7 +14,7 @@ bot.onText(/\/start/, async (msg) => {
     });
 
     // Формирование уникальной ссылки для этого пользователя
-    const url = `https://afc3-95-164-12-129.ngrok-free.app?telegram_id=${chatId}`;
+    const url = `https://1734-95-164-12-129.ngrok-free.app?telegram_id=${chatId}`;
 
     if (created) {
       bot.sendMessage(chatId, 'Вы успешно зарегистрированы! Нажмите на кнопку, чтобы открыть сайт', {

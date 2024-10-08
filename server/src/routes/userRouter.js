@@ -163,6 +163,60 @@ userRouter.route('/:store_id/queue/:date/signup').post(async (req, res) => {
     console.error('Ошибка записи в очередь:', error);
     res.status(500).json({ message: 'Ошибка записи в очередь' });
   }
+}); 
+
+
+userRouter.route('/:store_id/queue/:date/delete').delete(async (req, res) => {
+  const { store_id, date } = req.params;
+  const { telegram_id } = req.body; // Telegram ID передаётся в теле запроса
+
+  try {
+   
+    const user = await User.findOne({
+      where: { telegram_id },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'Пользователь не найден' });
+    }
+
+    // Шаг 2: Найти очередь для данного магазина и даты
+    const targetDate = new Date(date);
+    targetDate.setHours(0, 0, 0, 0); // Обнуляем время для точности
+
+    const queue = await Queues.findOne({
+      where: {
+        store_id: store_id,
+        date: targetDate,
+      },
+    });
+
+    if (!queue) {
+      return res.status(404).json({ message: 'Очередь не найдена для указанной даты и магазина' });
+    }
+
+    // Шаг 3: Найти запись в очереди для данного пользователя и очереди
+    const queueEntry = await Queue_entries.findOne({
+      where: {
+        user_id: user.id,
+        queue_id: queue.id,
+      },
+    });
+
+    if (!queueEntry) {
+      return res.status(404).json({ message: 'Запись не найдена в очереди' });
+    }
+
+    // Шаг 4: Удалить запись из очереди
+    await queueEntry.destroy();
+
+    // Шаг 5: Вернуть успешный ответ
+    res.status(200).json({ message: 'Запись успешно удалена' });
+
+  } catch (error) {
+    console.error('Ошибка при удалении записи:', error);
+    res.status(500).json({ message: 'Ошибка при удалении записи' });
+  }
 });
 
 

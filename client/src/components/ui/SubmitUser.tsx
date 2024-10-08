@@ -28,7 +28,6 @@ export default function SubmitUser({
     if (id && telegramId) {
       try {
         await signupForQueue(id, selectedDate, firstName, lastName, telegramId);
-        window.location.reload();
       } catch (error) {
         console.error('Ошибка при записи в очередь:', error);
       }

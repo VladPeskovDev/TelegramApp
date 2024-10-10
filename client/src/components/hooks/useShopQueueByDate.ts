@@ -9,6 +9,7 @@ export default function useShopQueueByDate(): {
   fetchQueueByDate: (id: string, date: string) => void;
   signupForQueue: (id: string, date: string, first_name: string, last_name: string, telegram_id: string | null) => void;
   deleteQueueEntry: (id: string, date: string, telegram_id: string | null) => void;
+  
 } {
   const queue = useAppSelector((state) => state.shopsDate.selectedQueue);
   const loading = useAppSelector((state) => state.shopsDate.loading);

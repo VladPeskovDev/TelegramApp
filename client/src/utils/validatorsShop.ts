@@ -7,6 +7,8 @@ export const ShopSchema = z.object({
     opened_at: z.string().nullable().optional(),  // Время открытия очереди
     users: z.array(z.any()).optional(), // Массив пользователей, сейчас пустой, но может быть массив объектов или ID пользователей
     message: z.string().optional(), // Сообщение об очереди
+    is_checked_in: z.boolean().optional(),
+    
   });
 
   export const ShopsSchema = z.array(ShopSchema);

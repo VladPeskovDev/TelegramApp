@@ -23,7 +23,7 @@ export default function MainPage(): JSX.Element {
           alignItems: 'center',
         },
       }}
-    >
+    > <h3>Выберите изолятор для записи </h3>
       {shops.map((shop) => (
         <Link key={shop.id} to={`/shop/${shop.id}${telegramId ? `?telegram_id=${telegramId}` : ''}`} style={{ textDecoration: 'none' }}>
           <Card

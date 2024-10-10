@@ -31,6 +31,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    is_checked_in: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false, 
+      allowNull: false,
+    },
   }, {
     sequelize,
     modelName: 'Queue_entries',

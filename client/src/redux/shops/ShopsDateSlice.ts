@@ -3,7 +3,7 @@ import type { QueueEntry, ShopQueueResponse } from '../../types/ShopTypes';
 import {
   deleteQueueEntryThunk,
   getShopQueueByDateThunk,
-  signupForQueueThunk,
+  signupForQueueThunk, 
 } from './ShopAsyncDateActions';
 
 type InitialStateType = {
@@ -12,6 +12,7 @@ type InitialStateType = {
   error: string | null;
   signupSuccess: boolean | null;
   deleteSuccess: boolean | null;
+  
 };
 
 const initialState: InitialStateType = {
@@ -20,6 +21,7 @@ const initialState: InitialStateType = {
   error: null,
   signupSuccess: null,
   deleteSuccess: null,
+  
 };
 
 const ShopsDateSlice = createSlice({
@@ -27,7 +29,7 @@ const ShopsDateSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    // Загрузка очереди
+    
     builder.addCase(getShopQueueByDateThunk.pending, (state) => {
       state.loading = true;
       state.error = null;
@@ -41,16 +43,17 @@ const ShopsDateSlice = createSlice({
       state.error = error.message || 'Ошибка загрузки данных';
     });
 
-    // Добавляем пользователя в очередь после успешного добавления
+    
     builder.addCase(signupForQueueThunk.fulfilled, (state, action) => {
       if (state.selectedQueue && action.meta.arg.telegram_id !== null) {
         const newUser: QueueEntry = {
-          user_id: Number(action.meta.arg.telegram_id), // Приводим telegram_id к числу
+          user_id: Number(action.meta.arg.telegram_id),
           first_name: action.meta.arg.first_name,
           last_name: action.meta.arg.last_name,
           name: `${action.meta.arg.first_name} ${action.meta.arg.last_name}`,
+          telegram_id: null
         };
-        state.selectedQueue.users.push(newUser); // Добавляем нового пользователя в очередь
+        state.selectedQueue.users.push(newUser); 
       }
       state.signupSuccess = true;
     });
@@ -61,9 +64,9 @@ const ShopsDateSlice = createSlice({
 
     builder.addCase(deleteQueueEntryThunk.fulfilled, (state, action) => {
       if (state.selectedQueue && action.meta.arg.telegram_id !== null) {
-        const telegramIdAsNumber = Number(action.meta.arg.telegram_id); // Приводим telegram_id к числу
+        const telegramIdAsNumber = Number(action.meta.arg.telegram_id); 
         state.selectedQueue.users = state.selectedQueue.users.filter(
-          (user) => user.user_id !== telegramIdAsNumber, // Сравниваем с приведенным типом
+          (user) => user.user_id !== telegramIdAsNumber, 
         );
       }
       state.deleteSuccess = true;
@@ -73,6 +76,7 @@ const ShopsDateSlice = createSlice({
       state.deleteSuccess = false;
       state.error = error.message || 'Ошибка удаления записи из очереди';
     });
+    
   },
 });
 

@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import ShopDataService from '../../services/ShopDataService';
 import type { ShopQueueResponse } from '../../types/ShopTypes';
-import type { RootState, AppDispatch } from '../store';
+import type {  AppDispatch } from '../store';
 
 // eslint-disable-next-line import/prefer-default-export
 export const getShopQueueByDateThunk = createAsyncThunk<
@@ -20,7 +20,7 @@ export const signupForQueueThunk = createAsyncThunk<
   'shops/signupForQueue',
   async ({ id, date, first_name, last_name, telegram_id }, { dispatch }) => {
     await ShopDataService.signupForQueue(id, date, first_name, last_name, telegram_id);
-    dispatch(getShopQueueByDateThunk({ id, date }));
+    void dispatch(getShopQueueByDateThunk({ id, date }));
   },
 );
 
@@ -28,8 +28,8 @@ export const deleteQueueEntryThunk = createAsyncThunk<void, { id: string, date: 
   'shops/deleteQueueEntry',
   async ({ id, date, telegram_id }, { dispatch }) => {
     await ShopDataService.deleteQueueEntry(id, date, telegram_id);
-
-    // После успешного удаления делаем повторный запрос на получение данных очереди
-    dispatch(getShopQueueByDateThunk({ id, date }));
+    void dispatch(getShopQueueByDateThunk({ id, date }));
   }
 );
+
+

@@ -28,7 +28,6 @@ class ShopDataService {
       });
     }
   }
-
   
-
+  
 export default new ShopDataService(apiInstance);

@@ -1,6 +1,5 @@
 const { Queue_entries, Queues, Stores, User } = require('../../db/models');
 const userRouter = require('express').Router();
-const { Op } = require('sequelize');
 require('dotenv').config();
 const bot = require('../bot');
 
@@ -24,13 +23,13 @@ userRouter.route('/:store_id/queue/:date').get(async (req, res) => {
     const queue = await Queues.findOne({
       where: {
         store_id: store_id,
-        date: targetDate, // Ищем очередь на указанную дату
+        date: targetDate, 
       },
       include: [
         {
           model: Stores,
           as: 'store',
-          attributes: ['name'], // Возвращаем только поле name
+          attributes: ['name'], 
         },
       ],
     });
@@ -49,15 +48,15 @@ userRouter.route('/:store_id/queue/:date').get(async (req, res) => {
         include: [
           {
             model: User,
-            as: 'user', // Используем алиас
-            attributes: ['first_name', 'last_name'], // Возвращаем имя и фамилию
+            as: 'user', 
+            attributes: ['first_name', 'last_name'], 
           },
         ],
       });
 
       return res.status(200).json({
         message: 'Очередь открыта',
-        users: entries, // Здесь теперь будут данные пользователей
+        users: entries, 
         queue_date: queue.date,
         name: queue.store.name,
       });
@@ -89,7 +88,7 @@ userRouter.route('/:store_id/queue/:date/signup').post(async (req, res) => {
     const cleanFirstName = first_name.trim();
     const cleanLastName = last_name.trim();
 
-    // Шаг 1: Найти или создать пользователя по telegram_id
+    
     let user = await User.findOne({
       where: { telegram_id },
     });
@@ -102,7 +101,6 @@ userRouter.route('/:store_id/queue/:date/signup').post(async (req, res) => {
       });
     }
 
-    // Шаг 2: Проверить наличие очереди на указанную дату для магазина
     const targetDate = new Date(date);
     targetDate.setHours(0, 0, 0, 0); 
 
@@ -117,13 +115,12 @@ userRouter.route('/:store_id/queue/:date/signup').post(async (req, res) => {
       return res.status(404).json({ message: 'Очередь не найдена на указанную дату для данного магазина' });
     }
 
-    // Шаг 3: Проверка, открыта ли очередь
     const now = new Date();
     if (!queue.opened_at || now < new Date(queue.opened_at)) {
       return res.status(403).json({ message: 'Очередь еще не открыта для записи' });
     }
 
-    // Шаг 4: Проверить, записан ли пользователь уже на эту дату в эту очередь
+    
     const existingEntry = await Queue_entries.findOne({
       where: {
         user_id: user.id,
@@ -135,19 +132,16 @@ userRouter.route('/:store_id/queue/:date/signup').post(async (req, res) => {
       return res.status(400).json({ message: 'Вы уже записаны в эту очередь на указанную дату' });
     }
 
-    // Шаг 5: Обновляем имя и фамилию пользователя, если необходимо
     if (user.first_name !== cleanFirstName || user.last_name !== cleanLastName) {
       user.first_name = cleanFirstName;
       user.last_name = cleanLastName;
       await user.save();
     }
 
-    // Шаг 6: Найти текущую позицию в очереди
     const currentEntriesCount = await Queue_entries.count({
       where: { queue_id: queue.id },
     });
 
-    // Шаг 7: Добавить запись в очередь
     const newEntry = await Queue_entries.create({
       queue_id: queue.id,
       user_id: user.id,
@@ -168,7 +162,7 @@ userRouter.route('/:store_id/queue/:date/signup').post(async (req, res) => {
 
 userRouter.route('/:store_id/queue/:date/delete').delete(async (req, res) => {
   const { store_id, date } = req.params;
-  const { telegram_id } = req.body; // Telegram ID передаётся в теле запроса
+  const { telegram_id } = req.body; 
 
   try {
    
@@ -180,10 +174,8 @@ userRouter.route('/:store_id/queue/:date/delete').delete(async (req, res) => {
       return res.status(404).json({ message: 'Пользователь не найден' });
     }
 
-    // Шаг 2: Найти очередь для данного магазина и даты
     const targetDate = new Date(date);
-    targetDate.setHours(0, 0, 0, 0); // Обнуляем время для точности
-
+    targetDate.setHours(0, 0, 0, 0); 
     const queue = await Queues.findOne({
       where: {
         store_id: store_id,
@@ -207,10 +199,8 @@ userRouter.route('/:store_id/queue/:date/delete').delete(async (req, res) => {
       return res.status(404).json({ message: 'Запись не найдена в очереди' });
     }
 
-    // Шаг 4: Удалить запись из очереди
     await queueEntry.destroy();
 
-    // Шаг 5: Вернуть успешный ответ
     res.status(200).json({ message: 'Запись успешно удалена' });
 
   } catch (error) {

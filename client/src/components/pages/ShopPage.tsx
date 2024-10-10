@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Typography, Button, TextField } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Button, TextField, Box } from '@mui/material';
 import useShopQueueByDate from '../hooks/useShopQueueByDate';
 import SubmitUser from '../ui/SubmitUser';
 import DeleteUser from '../ui/DeleteUser';
@@ -53,7 +52,16 @@ export default function ShopPage(): JSX.Element {
   }
 
   if (error) {
-    return <Button variant="contained" color="primary" onClick={() => window.location.reload()}>Очередь не найдена, вернитесь назад</Button>;
+    return  <Box mt={20} display="flex" justifyContent="center">
+    <Button
+      variant="contained"
+      color="primary"
+      onClick={() => window.location.reload()}
+    >
+      Очередь не найдена, вернитесь назад
+    </Button>
+  </Box>
+;
   }
 
   if (!queue) {
@@ -112,6 +120,16 @@ export default function ShopPage(): JSX.Element {
           Удалить запись
         </Button>
       </div>
+
+      <Box mt={3} display="flex" justifyContent="center">
+        <Button
+          variant="contained"
+          color='inherit'
+          onClick={() => navigate(`/?telegram_id=${telegramId}`)}
+        >
+          Вернуться в меню
+        </Button>
+      </Box>
       
 
       <SubmitUser
@@ -133,3 +151,4 @@ export default function ShopPage(): JSX.Element {
     </div>
   );
 }
+

@@ -18,6 +18,7 @@ export type QueueEntry = {
     name: string;
     first_name: string;
     last_name: string;
+    telegram_id: string | null;
   };
   
   export type ShopQueueResponse = {

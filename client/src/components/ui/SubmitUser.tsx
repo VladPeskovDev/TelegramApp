@@ -55,17 +55,17 @@ export default function SubmitUser({
           Записаться в очередь
         </Typography>
         <TextField
-          label="Фамилия"
-          fullWidth
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-          sx={{ marginBottom: 2 }}
-        />
-        <TextField
           label="Имя"
           fullWidth
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
+          sx={{ marginBottom: 2 }}
+        />
+         <TextField
+          label="Фамилия"
+          fullWidth
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
           sx={{ marginBottom: 2 }}
         />
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>

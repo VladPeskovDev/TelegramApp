@@ -1,20 +1,17 @@
-//const cron = require('node-cron');
 const { Queues, Stores } = require('../../db/models');
-//const { Op } = require('sequelize');
-
 
 async function openQueuesForAllStores() {
   const today = new Date();
   
-  // Определяем дату, на которую нужно открыть очередь
-  let dateToOpen = new Date(today);
-  dateToOpen.setDate(today.getDate() + 1); // Всегда генерируем на следующий день
 
-  // Обнуляем время для корректного хранения даты
+  let dateToOpen = new Date(today);
+  dateToOpen.setDate(today.getDate() ); // Всегда генерируем на следующий день
+
+  
   dateToOpen.setHours(0, 0, 0, 0);
 
-  // Генерируем случайное время для открытия очередей (с 08:00 до 23:00)
-  const randomHour = Math.floor(Math.random() * (23 - 8 + 1)) + 8;
+  
+  const randomHour = Math.floor(Math.random() * (23 - 18 + 1)) + 18;
   const randomMinute = Math.floor(Math.random() * 60);
   const openTime = new Date(today);
   openTime.setHours(randomHour, randomMinute, 0, 0);
@@ -29,7 +26,6 @@ async function openQueuesForAllStores() {
       return;
     }
 
-    // Для каждого магазина создаём запись с одинаковым временем открытия
     for (const store of stores) {
       try {
         await Queues.create({
@@ -49,11 +45,6 @@ async function openQueuesForAllStores() {
     console.error('Ошибка при получении списка магазинов:', error);
   }
 }
-
-
-
-
-
 
 
 module.exports = { openQueuesForAllStores };

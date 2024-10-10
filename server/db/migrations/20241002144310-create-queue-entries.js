@@ -33,6 +33,11 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
+      is_checked_in: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

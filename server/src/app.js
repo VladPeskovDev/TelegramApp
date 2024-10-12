@@ -4,7 +4,6 @@ const morgan = require('morgan');
 const userRouter = require('./routes/userRouter');
 const cron = require('node-cron');
 const { openQueuesForAllStores } = require('./utils/queue');
-//const { deleteQueuesAndEntriesForToday } = require('./utils/queueDelete');
 const bodyParser = require('body-parser');
 const bot = require('./bot');
 
@@ -19,7 +18,7 @@ app.use(express.json());
 
 app.use('/api/shops', userRouter);
 
-cron.schedule('10 15 * * *', openQueuesForAllStores);
-//cron.schedule('54 21 * * *', deleteQueuesAndEntriesForToday);
+cron.schedule('06 18 * * *', openQueuesForAllStores);
+
 
 module.exports = app;

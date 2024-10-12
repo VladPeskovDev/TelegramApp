@@ -16,6 +16,13 @@ export default function ShopPage(): JSX.Element {
   const queryParams = new URLSearchParams(location.search);
   const telegramId = queryParams.get('telegram_id');
 
+  // Логика для получения завтрашней даты
+  const getTomorrowDate = (): string => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toISOString().split('T')[0];
+  };
+
   useEffect(() => {
     if (!id) {
       navigate('/error'); 
@@ -47,31 +54,32 @@ export default function ShopPage(): JSX.Element {
     setIsDeleteModalOpen(false);
   };
 
+  // Если данные не загружены, устанавливаем дату на завтра
+  if (!loading && !queue && !error) {
+    setSelectedDate(getTomorrowDate()); // Меняем дату на завтрашнюю
+    fetchQueueByDate(id as string, getTomorrowDate()); // Загружаем очередь на завтрашний день
+  }
+
   if (loading) {
     return <p>Загрузка...</p>;
   }
 
   if (error) {
     return  <Box mt={20} display="flex" justifyContent="center">
-    <Button
-      variant="contained"
-      color="primary"
-      onClick={() => window.location.reload()}
-    >
-      Очередь не найдена, вернитесь назад
-    </Button>
-  </Box>
-;
-  }
-
-  if (!queue) {
-    return <p>Открытых очередей нет для данного магазина</p>;
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => window.location.reload()}
+      >
+        Очередь не найдена, вернитесь назад
+      </Button>
+    </Box>;
   }
 
   return (
     <div>
-      <h2>{queue.name}</h2>
-      <h3>{queue.message}</h3>
+      <h2>{queue?.name}</h2>
+      <h3>{queue?.message}</h3>
 
       <TextField
         label="Выберите дату"
@@ -84,7 +92,7 @@ export default function ShopPage(): JSX.Element {
         }}
       />
 
-      {queue.users && queue.users.length > 0 ? (
+      {queue?.users && queue.users.length > 0 ? (
         <TableContainer component={Paper} sx={{ marginTop: '20px' }}>
           <Table>
             <TableHead>
@@ -130,7 +138,6 @@ export default function ShopPage(): JSX.Element {
           Вернуться в меню
         </Button>
       </Box>
-      
 
       <SubmitUser
         open={isModalOpen}
@@ -151,4 +158,3 @@ export default function ShopPage(): JSX.Element {
     </div>
   );
 }
-

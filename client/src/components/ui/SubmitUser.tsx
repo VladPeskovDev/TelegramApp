@@ -15,7 +15,6 @@ export default function SubmitUser({
   onClose,
   selectedDate,
   telegramId,
-
 }: SubmitUserProps): JSX.Element {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -23,13 +22,12 @@ export default function SubmitUser({
   const { id } = useParams<{ id: string }>();
   const { signupForQueue } = useShopQueueByDate();
 
-
   const handleSubmit = async (): Promise<void> => {
     if (id && telegramId) {
       try {
         await signupForQueue(id, selectedDate, firstName, lastName, telegramId);
-      } catch (error) {
-        console.error('Ошибка при записи в очередь:', error);
+      } catch {
+        alert('Ошибка при записи в очередь. Попробуйте позже.');
       }
     } else {
       alert('Запись возможна только через приложение Telegram');
@@ -38,6 +36,7 @@ export default function SubmitUser({
     setLastName('');
     onClose();
   };
+  
 
   return (
     <Modal open={open} onClose={onClose}>

@@ -7,32 +7,41 @@ import DeleteUser from '../ui/DeleteUser';
 
 export default function ShopPage(): JSX.Element {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const { queue, loading, error, fetchQueueByDate } = useShopQueueByDate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const telegramId = queryParams.get('telegram_id');
-
-  // Логика для получения завтрашней даты
-  const getTomorrowDate = (): string => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toISOString().split('T')[0];
-  };
+  
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); 
+    const localDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    return localDate;
+  });
+  
+  const [queueData, setQueueData] = useState(queue); // Локальное состояние для сброса данных очереди
 
   useEffect(() => {
     if (!id) {
-      navigate('/error'); 
+      navigate('/error');
       return;
     }
 
-    if (id && selectedDate) {
-      fetchQueueByDate(id, selectedDate);
-    }
+    // Загружаем очередь на текущий день
+    fetchQueueByDate(id, selectedDate);
   }, [id, selectedDate, navigate]);
+
+  useEffect(() => {
+    // Если произошла ошибка или очередь не найдена, сбрасываем состояние очереди
+    if (!loading && (error || !queue)) {
+      setQueueData(null);  // Очищаем состояние, если нет данных
+    } else if (queue) {
+      setQueueData(queue); // Устанавливаем очередь, если данные есть
+    }
+  }, [queue, loading, error]);
 
   const handleOpenModal = (): void => {
     setIsModalOpen(true);
@@ -54,32 +63,20 @@ export default function ShopPage(): JSX.Element {
     setIsDeleteModalOpen(false);
   };
 
-  // Если данные не загружены, устанавливаем дату на завтра
-  if (!loading && !queue && !error) {
-    setSelectedDate(getTomorrowDate()); // Меняем дату на завтрашнюю
-    fetchQueueByDate(id as string, getTomorrowDate()); // Загружаем очередь на завтрашний день
-  }
-
   if (loading) {
     return <p>Загрузка...</p>;
   }
 
-  if (error) {
-    return  <Box mt={20} display="flex" justifyContent="center">
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => window.location.reload()}
-      >
-        Очередь не найдена, вернитесь назад
-      </Button>
-    </Box>;
-  }
-
   return (
     <div>
-      <h2>{queue?.name}</h2>
-      <h3>{queue?.message}</h3>
+      {queueData ? (
+        <>
+          <h2>{queueData.name}</h2>
+          <h3>{queueData.message}</h3>
+        </>
+      ) : (
+        <Typography variant="h6">Очередь не найдена</Typography>
+      )}
 
       <TextField
         label="Выберите дату"
@@ -92,7 +89,7 @@ export default function ShopPage(): JSX.Element {
         }}
       />
 
-      {queue?.users && queue.users.length > 0 ? (
+      {queueData && queueData.users && queueData.users.length > 0 ? (
         <TableContainer component={Paper} sx={{ marginTop: '20px' }}>
           <Table>
             <TableHead>
@@ -103,7 +100,7 @@ export default function ShopPage(): JSX.Element {
               </TableRow>
             </TableHead>
             <TableBody>
-              {queue.users.map((user, index) => (
+              {queueData.users.map((user, index) => (
                 <TableRow key={user.user_id || index}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{user.user?.last_name}</TableCell>
@@ -132,7 +129,7 @@ export default function ShopPage(): JSX.Element {
       <Box mt={3} display="flex" justifyContent="center">
         <Button
           variant="contained"
-          color='inherit'
+          color="inherit"
           onClick={() => navigate(`/?telegram_id=${telegramId}`)}
         >
           Вернуться в меню
@@ -145,12 +142,11 @@ export default function ShopPage(): JSX.Element {
         selectedDate={selectedDate}
         telegramId={telegramId}
       />
-
       {id && (
         <DeleteUser
           open={isDeleteModalOpen}
           onClose={handleCloseDeleteModal}
-          storeId={id}  
+          storeId={id}
           date={selectedDate}
           telegramId={telegramId}
         />
@@ -158,3 +154,4 @@ export default function ShopPage(): JSX.Element {
     </div>
   );
 }
+

@@ -77,7 +77,7 @@ async function openQueuesForAllStores() {
   
   dateToOpen.setHours(0, 0, 0, 0);
 
-  const randomHour = Math.floor(Math.random() * (23 - 8 + 1)) + 8;
+  const randomHour = Math.floor(Math.random() * (23 - 18 + 1)) + 18;
   const randomMinute = Math.floor(Math.random() * 60);
   const openTime = new Date(today);
   openTime.setHours(randomHour, randomMinute, 0, 0);

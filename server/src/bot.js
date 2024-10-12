@@ -21,7 +21,7 @@ bot.onText(/\/start/, async (msg) => {
     });
 
     
-    const url = `https://4288-95-164-12-129.ngrok-free.app?telegram_id=${chatId}`;
+    const url = `https://edf9-109-252-189-152.ngrok-free.app?telegram_id=${chatId}`;
 
     if (created) {
       bot.sendMessage(chatId, 'Вы успешно зарегистрированы! Нажмите на кнопку, чтобы записаться в сизо', {
@@ -82,7 +82,7 @@ bot.onText(/\/help/, (msg) => {
   bot.sendMessage(chatId, infoMessage);
 });
 
-bot.onText(/\/Feedback/, (msg) => {
+bot.onText(/\/feedback/, (msg) => {
   const chatId = String(msg.chat.id);
 
   const infoMessage = `

@@ -18,7 +18,7 @@ app.use(express.json());
 
 app.use('/api/shops', userRouter);
 
-cron.schedule('50 01 * * *', openQueuesForAllStores);
+cron.schedule('10 00 * * *', openQueuesForAllStores);
 
 
 module.exports = app;

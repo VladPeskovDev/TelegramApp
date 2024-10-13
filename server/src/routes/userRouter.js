@@ -1,7 +1,7 @@
 const { Queue_entries, Queues, Stores, User } = require('../../db/models');
 const userRouter = require('express').Router();
 require('dotenv').config();
-const bot = require('../bot');
+
 
 userRouter.route('/').get(async (req, res) => {
   try {
@@ -187,7 +187,6 @@ userRouter.route('/:store_id/queue/:date/delete').delete(async (req, res) => {
       return res.status(404).json({ message: 'Очередь не найдена для указанной даты и магазина' });
     }
 
-    // Шаг 3: Найти запись в очереди для данного пользователя и очереди
     const queueEntry = await Queue_entries.findOne({
       where: {
         user_id: user.id,
@@ -200,7 +199,6 @@ userRouter.route('/:store_id/queue/:date/delete').delete(async (req, res) => {
     }
 
     await queueEntry.destroy();
-
     res.status(200).json({ message: 'Запись успешно удалена' });
 
   } catch (error) {

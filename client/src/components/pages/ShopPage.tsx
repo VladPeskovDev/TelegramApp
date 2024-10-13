@@ -22,7 +22,7 @@ export default function ShopPage(): JSX.Element {
     return localDate;
   });
   
-  const [queueData, setQueueData] = useState(queue); // Локальное состояние для сброса данных очереди
+  const [queueData, setQueueData] = useState(queue); 
 
   useEffect(() => {
     if (!id) {
@@ -30,7 +30,6 @@ export default function ShopPage(): JSX.Element {
       return;
     }
 
-    // Загружаем очередь на текущий день
     fetchQueueByDate(id, selectedDate);
   }, [id, selectedDate, navigate]);
 

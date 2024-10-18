@@ -22,7 +22,7 @@ bot.onText(/\/start/, async (msg) => {
     });
 
     
-    const url = `https://70f7-95-164-12-129.ngrok-free.app?telegram_id=${chatId}`;
+    const url = `https://ce43-109-252-189-152.ngrok-free.app?telegram_id=${chatId}`;
 
     if (created) {
       bot.sendMessage(chatId, 'Вы успешно зарегистрированы! Нажмите на кнопку, чтобы записаться в сизо', {
@@ -92,7 +92,7 @@ bot.onText(/\/feedback/, (msg) => {
   const chatId = String(msg.chat.id);
 
   const infoMessage = `
-   Если у вас есть предложения по улучшению приложения, вопросы или возникли какие-либо проблемы, вы можете связаться с нашим разработчиком по адресу: bazarmusagaliev@gmail.com. Мы всегда рады вашим отзывам и готовы помочь!
+   Если у вас есть предложения по улучшению приложения, вопросы или возникли какие-либо проблемы, вы можете связаться с нашим разработчиком по адресу: feedbackbot24@yahoo.com Мы всегда рады вашим отзывам и готовы помочь!
   `;
 
   bot.sendMessage(chatId, infoMessage);

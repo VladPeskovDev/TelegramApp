@@ -22,7 +22,7 @@ bot.onText(/\/start/, async (msg) => {
     });
 
     
-    const url = `https://ce43-109-252-189-152.ngrok-free.app?telegram_id=${chatId}`;
+    const url = `https://tgqueue.ru?telegram_id=${chatId}`;
 
     if (created) {
       bot.sendMessage(chatId, 'Вы успешно зарегистрированы! Нажмите на кнопку, чтобы записаться в сизо', {

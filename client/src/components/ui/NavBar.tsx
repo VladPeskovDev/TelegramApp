@@ -11,8 +11,8 @@ dayjs.extend(isoWeek);
 export default function Navbar(): JSX.Element {
   const { id } = useParams<{ id: string }>(); 
   const [currentMonth, setCurrentMonth] = useState(dayjs());
-  const [selectedDate, setSelectedDate] = useState<string>(dayjs().format('YYYY-MM-DD')); 
-  const { queue, loading, error, fetchQueueByDate } = useShopQueueByDate(); 
+  const [ setSelectedDate] = useState<string>(dayjs().format('YYYY-MM-DD')); 
+  const { fetchQueueByDate } = useShopQueueByDate(); 
 
   // Обработчик для переключения месяцев назад
   const handlePreviousMonth = (): void => {

@@ -1,5 +1,4 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import type { AxiosResponse } from "axios";
 import ShopService from "../../services/ShopService";
 // eslint-disable-next-line import/no-duplicates
 import type {  ShopType } from "../../types/ShopTypes";

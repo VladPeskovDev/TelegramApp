@@ -1,7 +1,7 @@
 import type { AxiosInstance} from "axios";
 import apiInstance from "./apiInstance";
 import { ShopSchema, ShopsSchema } from "../utils/validatorsShop";
-import type { ApiResponce, ShopType, ShopDataType, ShopQueueResponse } from "../types/ShopTypes";
+import type { ApiResponce, ShopType } from "../types/ShopTypes";
 
 
 class ShopService {

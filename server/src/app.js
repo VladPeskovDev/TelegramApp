@@ -5,7 +5,7 @@ const userRouter = require('./routes/userRouter');
 const cron = require('node-cron');
 const { openQueuesForAllStores } = require('./utils/queue');
 const bodyParser = require('body-parser');
-const bot = require('./bot');
+//const bot = require('./bot');
 const path = require('path');
 
 const app = express();

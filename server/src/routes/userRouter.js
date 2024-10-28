@@ -31,7 +31,7 @@ userRouter.route('/:store_id/queue/:date').get(async (req, res) => {
 
   try {
     const targetDate = new Date(date);
-    targetDate.setHours(0, 0, 0, 0); // Обнуляем время для корректного сравнения
+    targetDate.setHours(0, 0, 0, 0); 
 
     const queue = await Queues.findOne({
       where: {

@@ -1,49 +1,35 @@
-//const cron = require('node-cron');
 const { Queues, Queue_entries } = require('../../db/models');
-const { Op, Sequelize } = require('sequelize'); 
+const { Op, Sequelize } = require('sequelize');
 
-
-async function deleteQueuesAndEntriesForToday() {
+async function deleteOldQueuesAndEntries() {
   const today = new Date();
-  today.setHours(0, 0, 0, 0); // Обнуляем время для корректного сравнения
+  const targetDate = new Date(today);
+  targetDate.setDate(today.getDate() - 7); // Определяем дату 7 дней назад
+  targetDate.setHours(0, 0, 0, 0); 
 
   try {
-    // Удаляем записи в queue_entries, связанные с очередями на текущий день
+    // Удаляем записи пользователей в queue_entries, связанные с очередями на 7 дней назад
     const deletedEntries = await Queue_entries.destroy({
       where: {
         queue_id: {
-          [Op.in]: Sequelize.literal(`(SELECT id FROM "Queues" WHERE date = '${today.toISOString().split('T')[0]}')`) // Оборачиваем SELECT в скобки
+          [Op.in]: Sequelize.literal(`(SELECT id FROM "Queues" WHERE date = '${targetDate.toISOString().split('T')[0]}')`)
         }
       }
     });
-    console.log(`${deletedEntries} записей пользователей были удалены для даты ${today.toDateString()}`);
+    console.log(`${deletedEntries} записей пользователей были удалены для даты ${targetDate.toDateString()}`);
 
-    // Удаляем записи очередей на текущий день
+    // Удаляем сами очереди на 7 дней назад
     const deletedQueues = await Queues.destroy({
       where: {
-        date: today
+        date: targetDate
       }
     });
-    console.log(`${deletedQueues} очереди были удалены для даты ${today.toDateString()}`);
-
-    // Удаляем старые записи времени открытия из таблицы Queues
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1); // Получаем дату вчерашнего дня
-    const deletedOldQueues = await Queues.destroy({
-      where: {
-        date: yesterday, // Удаляем очереди для вчерашнего дня
-        opened_at: {
-          [Op.ne]: null // Только те очереди, которые уже были открыты
-        }
-      }
-    });
-    console.log(`Удалено ${deletedOldQueues} старых очередей для даты ${yesterday.toDateString()}`);
+    console.log(`${deletedQueues} очередей были удалены для даты ${targetDate.toDateString()}`);
   } catch (error) {
-    console.error('Ошибка при удалении данных очередей и записей:', error);
+    console.error('Ошибка при удалении старых данных очередей и записей:', error);
   }
 }
 
-//cron.schedule('58 23 * * *', deleteQueuesAndEntriesForToday);
 
-module.exports = { deleteQueuesAndEntriesForToday };
+module.exports = { deleteOldQueuesAndEntries };
 

@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const userRouter = require('./routes/userRouter');
 const cron = require('node-cron');
 const { openQueuesForAllStores } = require('./utils/queue');
+const { deleteOldQueuesAndEntries } = require('./utils/queueDelete');
 const bodyParser = require('body-parser');
 //const bot = require('./bot');
 const path = require('path');
@@ -24,6 +25,8 @@ app.get('/*', (req, res) => {
   });
 
 cron.schedule('01 00 * * *', openQueuesForAllStores);
+
+cron.schedule('07 00 * * *', deleteOldQueuesAndEntries);
 
 
 module.exports = app;

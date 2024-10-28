@@ -1,16 +1,30 @@
 const { Queue_entries, Queues, Stores, User } = require('../../db/models');
 const userRouter = require('express').Router();
+const NodeCache = require('node-cache');
 require('dotenv').config();
+
+const cache = new NodeCache({ stdTTL: 86400, checkperiod: 7200 }); 
 
 userRouter.route('/').get(async (req, res) => {
   try {
+    // Проверяем, есть ли данные в кэше
+    const cachedStores = cache.get('stores');
+    if (cachedStores) {
+      return res.status(200).json(cachedStores);
+    }
+    
     const stores = await Stores.findAll();
+    // Сохраняем данные в кэш
+    cache.set('stores', stores);
+
+    console.log('Отправка данных из базы данных');
     res.status(200).json(stores);
   } catch (error) {
     console.error('Ошибка при получении магазинов:', error);
     res.status(500).json({ message: 'Ошибка при получении магазинов' });
   }
 });
+
 
 userRouter.route('/:store_id/queue/:date').get(async (req, res) => {
   const { store_id, date } = req.params;

@@ -6,7 +6,7 @@ const cron = require('node-cron');
 const { openQueuesForAllStores } = require('./utils/queue');
 const { deleteOldQueuesAndEntries } = require('./utils/queueDelete');
 const bodyParser = require('body-parser');
-const bot = require('./bot');
+//const bot = require('./bot');
 const path = require('path');
 
 const app = express();

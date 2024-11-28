@@ -3,7 +3,7 @@ const userRouter = require('express').Router();
 const NodeCache = require('node-cache');
 require('dotenv').config();
 
-const cache = new NodeCache({ stdTTL: 86400, checkperiod: 7200 }); 
+const cache = new NodeCache({ stdTTL: 86400, checkperiod: 14400 }); 
 
 userRouter.route('/').get(async (req, res) => {
   try {
@@ -12,11 +12,9 @@ userRouter.route('/').get(async (req, res) => {
     if (cachedStores) {
       return res.status(200).json(cachedStores);
     }
-    
     const stores = await Stores.findAll();
     // Сохраняем данные в кэш
     cache.set('stores', stores);
-
     console.log('Отправка данных из базы данных');
     res.status(200).json(stores);
   } catch (error) {

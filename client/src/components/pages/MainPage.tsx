@@ -34,6 +34,9 @@ export default function MainPage(): JSX.Element {
               justifyContent: 'center',
               alignItems: 'center',
               transition: 'transform 0.3s',
+              border: '1px solid', 
+              borderColor: 'grey.400',
+              borderRadius: '8px', 
               '&:hover': {
                 transform: 'scale(1.05)',
               },

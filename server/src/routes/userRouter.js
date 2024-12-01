@@ -3,19 +3,25 @@ const userRouter = require('express').Router();
 const NodeCache = require('node-cache');
 require('dotenv').config();
 
-const cache = new NodeCache({ stdTTL: 86400, checkperiod: 14400 }); 
+const cacheShop = new NodeCache({ stdTTL: 86400, checkperiod: 14400 });
+const cache = new NodeCache({ stdTTL: 600, checkperiod: 300 });
+
+// Лог кэша
+function logCacheState(key) {
+  console.log(`Ключ в кэше: ${key}`);
+  console.log(`Текущие ключи: ${cache.keys()}`);
+  console.log(`Размер кэша: ${cache.keys().length}`);
+}
 
 userRouter.route('/').get(async (req, res) => {
   try {
-    // Проверяем, есть ли данные в кэше
-    const cachedStores = cache.get('stores');
+    const cachedStores = cacheShop.get('stores');
     if (cachedStores) {
       return res.status(200).json(cachedStores);
     }
     const stores = await Stores.findAll();
-    // Сохраняем данные в кэш
-    cache.set('stores', stores);
-    console.log('Отправка данных из базы данных');
+    cacheShop.set('stores', stores);
+    console.log('Данные магазинов загружены из базы данных и сохранены в кэш.');
     res.status(200).json(stores);
   } catch (error) {
     console.error('Ошибка при получении магазинов:', error);
@@ -23,19 +29,25 @@ userRouter.route('/').get(async (req, res) => {
   }
 });
 
-
+// Получение очереди по магазину и дате
 userRouter.route('/:store_id/queue/:date').get(async (req, res) => {
   const { store_id, date } = req.params;
+  const cacheKey = `queue_${store_id}_${date}`;
 
   try {
+    const cachedQueue = cache.get(cacheKey);
+    if (cachedQueue) {
+      console.log(`Кэш найден для ключа: ${cacheKey}`);
+      return res.status(200).json(cachedQueue);
+    }
+
+    console.log(`Кэш не найден для ключа: ${cacheKey}, запрос к базе данных...`);
+
     const targetDate = new Date(date);
-    targetDate.setHours(0, 0, 0, 0); 
+    targetDate.setHours(0, 0, 0, 0);
 
     const queue = await Queues.findOne({
-      where: {
-        store_id: store_id,
-        date: targetDate,
-      },
+      where: { store_id, date: targetDate },
       include: [
         {
           model: Stores,
@@ -46,12 +58,16 @@ userRouter.route('/:store_id/queue/:date').get(async (req, res) => {
     });
 
     if (!queue) {
-      return res
-        .status(404)
-        .json({ message: `Очередь не найдена для магазина ${store_id} на ${date}` });
+      return res.status(404).json({ message: 'Очередь не найдена' });
     }
-
     const isOpen = queue.opened_at && new Date() >= new Date(queue.opened_at);
+
+    let response = {
+      message: isOpen ? 'Очередь открыта' : 'Очередь закрыта',
+      queue_date: queue.date,
+      name: queue.store.name,
+      users: [],
+    };
 
     if (isOpen) {
       const entries = await Queue_entries.findAll({
@@ -64,99 +80,78 @@ userRouter.route('/:store_id/queue/:date').get(async (req, res) => {
           },
         ],
       });
-
-      return res.status(200).json({
-        message: 'Очередь открыта',
-        users: entries,
-        queue_date: queue.date,
-        name: queue.store.name,
-      });
-    } else {
-      return res.status(200).json({
-        message: 'Очередь закрыта',
-        queue_date: queue.date,
-        name: queue.store.name,
-      });
+      response.users = entries.map((entry) => ({
+        id: entry.id,
+        queue_id: entry.queue_id,
+        user_id: entry.user_id,
+        position: entry.position,
+        is_checked_in: entry.is_checked_in,
+        createdAt: entry.createdAt,
+        updatedAt: entry.updatedAt,
+        user: {
+          first_name: entry.user?.first_name || 'Имя отсутствует',
+          last_name: entry.user?.last_name || 'Фамилия отсутствует',
+        },
+      }));
     }
+
+    cache.set(cacheKey, response);
+    console.log(`Кэш обновлён для ключа: ${cacheKey}`);
+    res.status(200).json(response);
   } catch (error) {
-    console.error('Ошибка при получении данных о магазине:', error);
-    res.status(500).json({ message: 'Ошибка получения данных' });
+    console.error(`Ошибка при обработке запроса для ключа ${cacheKey}:`, error);
+    res.status(500).json({ message: 'Ошибка сервера' });
   }
 });
 
+// Запись в очередь
 userRouter.route('/:store_id/queue/:date/signup').post(async (req, res) => {
   const { store_id, date } = req.params;
   const { first_name, last_name, telegram_id } = req.body;
+  const cacheKey = `queue_${store_id}_${date}`;
 
   try {
     if (!telegram_id || !first_name || !last_name) {
-      return res
-        .status(400)
-        .json({ message: 'Необходимо предоставить telegram_id, first_name и last_name' });
+      return res.status(400).json({ message: 'Недостаточно данных для записи' });
     }
 
-    const cleanFirstName = first_name.trim();
-    const cleanLastName = last_name.trim();
-
-    let user = await User.findOne({
+    const user = await User.findOrCreate({
       where: { telegram_id },
+      defaults: { first_name, last_name },
     });
-
-    if (!user) {
-      user = await User.create({
-        first_name: cleanFirstName,
-        last_name: cleanLastName,
-        telegram_id,
-      });
-    }
 
     const targetDate = new Date(date);
     targetDate.setHours(0, 0, 0, 0);
 
-    const queue = await Queues.findOne({
-      where: {
-        store_id: store_id,
-        date: targetDate,
-      },
-    });
-
+    const queue = await Queues.findOne({ where: { store_id, date: targetDate } });
     if (!queue) {
-      return res
-        .status(404)
-        .json({ message: 'Очередь не найдена на указанную дату для данного магазина' });
+      return res.status(404).json({ message: 'Очередь не найдена' });
     }
 
     const now = new Date();
     if (!queue.opened_at || now < new Date(queue.opened_at)) {
-      return res.status(403).json({ message: 'Очередь еще не открыта для записи' });
+      return res.status(403).json({ message: 'Очередь ещё не открыта' });
     }
 
     const existingEntry = await Queue_entries.findOne({
-      where: {
-        user_id: user.id,
-        queue_id: queue.id,
-      },
+      where: { user_id: user[0].id, queue_id: queue.id },
     });
 
     if (existingEntry) {
-      return res.status(400).json({ message: 'Вы уже записаны в эту очередь на указанную дату' });
+      return res.status(400).json({ message: 'Вы уже записаны в очередь' });
     }
-
-    if (user.first_name !== cleanFirstName || user.last_name !== cleanLastName) {
-      user.first_name = cleanFirstName;
-      user.last_name = cleanLastName;
-      await user.save();
-    }
-
-    const currentEntriesCount = await Queue_entries.count({
-      where: { queue_id: queue.id },
-    });
+    const currentCount = await Queue_entries.count({ where: { queue_id: queue.id } });
 
     const newEntry = await Queue_entries.create({
       queue_id: queue.id,
-      user_id: user.id,
-      position: currentEntriesCount + 1,
+      user_id: user[0].id,
+      position: currentCount + 1,
     });
+    // Удаление кэша после изменения данных
+    if (cache.has(cacheKey)) {
+      cache.del(cacheKey);
+      console.log(`Кэш удалён для ключа: ${cacheKey}`);
+    }
 
     res.status(201).json({
       message: 'Вы успешно записаны в очередь',
@@ -168,14 +163,14 @@ userRouter.route('/:store_id/queue/:date/signup').post(async (req, res) => {
   }
 });
 
+// Удаление записи из очереди
 userRouter.route('/:store_id/queue/:date/delete').delete(async (req, res) => {
   const { store_id, date } = req.params;
   const { telegram_id } = req.body;
-  
+  const cacheKey = `queue_${store_id}_${date}`;
+
   try {
-    const user = await User.findOne({
-      where: { telegram_id },
-    });
+    const user = await User.findOne({ where: { telegram_id } });
 
     if (!user) {
       return res.status(404).json({ message: 'Пользователь не найден' });
@@ -183,11 +178,9 @@ userRouter.route('/:store_id/queue/:date/delete').delete(async (req, res) => {
 
     const targetDate = new Date(date);
     targetDate.setHours(0, 0, 0, 0);
+
     const queue = await Queues.findOne({
-      where: {
-        store_id: store_id,
-        date: targetDate,
-      },
+      where: { store_id: store_id, date: targetDate },
     });
 
     if (!queue) {
@@ -195,10 +188,7 @@ userRouter.route('/:store_id/queue/:date/delete').delete(async (req, res) => {
     }
 
     const queueEntry = await Queue_entries.findOne({
-      where: {
-        user_id: user.id,
-        queue_id: queue.id,
-      },
+      where: { user_id: user.id, queue_id: queue.id },
     });
 
     if (!queueEntry) {
@@ -206,6 +196,7 @@ userRouter.route('/:store_id/queue/:date/delete').delete(async (req, res) => {
     }
 
     await queueEntry.destroy();
+    cache.del(cacheKey); // Удаляем кэш
     res.status(200).json({ message: 'Запись успешно удалена' });
   } catch (error) {
     console.error('Ошибка при удалении записи:', error);

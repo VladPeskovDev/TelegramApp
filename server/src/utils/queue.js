@@ -1,59 +1,3 @@
-/* const { Queues, Stores } = require('../../db/models');
-
-async function openQueuesForAllStores() {
-  const today = new Date();
-  const dayOfWeek = today.getDay(); // День недели (0 - воскресенье, 6 - суббота)
-
-  let dateToOpen = new Date(today);
-  dateToOpen.setDate(today.getDate() + 1); // Генерация на следующий день
-  dateToOpen.setHours(0, 0, 0, 0);
-
-  // Определяем время открытия очереди
-  let openTime;
-  if (dayOfWeek === 5 || dayOfWeek === 6) { // Пятница или Суббота
-    // Устанавливаем "фиктивное" время 23:59
-    openTime = new Date(today);
-    openTime.setHours(23, 59, 0, 0); // Очередь не откроется фактически
-    console.log(`Фиктивная очередь на ${dateToOpen.toDateString()} с фиктивным временем открытия 23:59`);
-  } else {
-    // Генерация времени открытия на будние дни между 18:00 и 23:59
-    const randomHour = Math.floor(Math.random() * (23 - 18 + 1)) + 18;
-    const randomMinute = Math.floor(Math.random() * 60);
-    openTime = new Date(today);
-    openTime.setHours(randomHour, randomMinute, 0, 0);
-
-    console.log(`Очередь на ${dateToOpen.toDateString()} с временем открытия: ${openTime.toTimeString()}`);
-  }
-
-  try {
-    const stores = await Stores.findAll();
-    if (stores.length === 0) {
-      console.log('Магазины не найдены.');
-      return;
-    }
-
-    for (const store of stores) {
-      try {
-        await Queues.create({
-          store_id: store.id,
-          date: dateToOpen, // Дата очереди
-          opened_at: openTime, // Время открытия или фиктивное время
-          createdAt: new Date(),
-          updatedAt: new Date()
-        });
-
-        console.log(`Очередь создана для магазина с ID ${store.id} на дату ${dateToOpen.toDateString()} с открытием в ${openTime.toTimeString()}`);
-      } catch (error) {
-        console.error(`Ошибка при создании очереди для магазина с ID ${store.id}:`, error);
-      }
-    }
-  } catch (error) {
-    console.error('Ошибка при получении списка магазинов:', error);
-  }
-}
-
-module.exports = { openQueuesForAllStores }; */
-
 const { Queues, Stores } = require('../../db/models');
 
 async function openQueuesForAllStores() {
@@ -114,4 +58,65 @@ async function openQueuesForAllStores() {
   }
 }
 
-module.exports = { openQueuesForAllStores };
+module.exports = { openQueuesForAllStores }; 
+
+
+/*
+const { Queues, Stores } = require('../../db/models');
+
+async function openQueuesForAllStores() {
+  const today = new Date();
+  const tomorrow = new Date(today);
+
+  // Устанавливаем дату завтрашнего дня для генерации очереди
+  tomorrow.setDate(today.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0); // Обнуляем время
+
+  // Генерация случайного времени открытия очереди (например, 14:00 - 20:00)
+  const randomHour = Math.floor(Math.random() * (20 - 14 + 1)) + 14;
+  const randomMinute = Math.floor(Math.random() * 60);
+  const openTime = new Date(today); // Время открытия — сегодня
+  openTime.setHours(randomHour, randomMinute, 0, 0);
+
+  console.log(`Очередь будет сгенерирована для даты: ${tomorrow.toDateString()} с временем открытия: ${openTime.toTimeString()} (сегодня)`);
+
+  try {
+    const stores = await Stores.findAll();
+
+    if (stores.length === 0) {
+      console.log('Магазины не найдены.');
+      return;
+    }
+
+    for (const store of stores) {
+      try {
+        // Проверяем, существует ли уже очередь на завтрашний день
+        const existingQueue = await Queues.findOne({
+          where: { store_id: store.id, date: tomorrow },
+        });
+
+        if (existingQueue) {
+          console.log(`Очередь для магазина с ID ${store.id} на дату ${tomorrow.toDateString()} уже существует.`);
+          continue;
+        }
+
+        // Создаём новую очередь
+        await Queues.create({
+          store_id: store.id,
+          date: tomorrow, // Очередь на завтра
+          opened_at: openTime, // Открывается сегодня
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+
+        console.log(`Очередь создана для магазина с ID ${store.id} на дату: ${tomorrow.toDateString()} с временем открытия: ${openTime.toTimeString()}`);
+      } catch (error) {
+        console.error(`Ошибка при создании очереди для магазина с ID ${store.id}:`, error);
+      }
+    }
+  } catch (error) {
+    console.error('Ошибка при получении списка магазинов:', error);
+  }
+}
+
+module.exports = { openQueuesForAllStores }; */

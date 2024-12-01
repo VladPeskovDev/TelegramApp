@@ -22,7 +22,8 @@ bot.onText(/\/start/, async (msg) => {
     });
 
     
-    const url = `https://tgqueue.ru?telegram_id=${chatId}`;
+    //const url = `https://tgqueue.ru?telegram_id=${chatId}`;
+    const url = `https://9ae5-95-164-12-129.ngrok-free.app?telegram_id=${chatId}`;
 
     if (created) {
       bot.sendMessage(chatId, 'Вы успешно зарегистрированы! Нажмите на кнопку, чтобы записаться в сизо', {
@@ -104,4 +105,3 @@ bot.onText(/\/feedback/, (msg) => {
 module.exports = bot; 
 
 
-// электорнный листок СИЗО

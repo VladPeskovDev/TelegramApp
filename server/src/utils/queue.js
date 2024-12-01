@@ -7,13 +7,13 @@ async function openQueuesForAllStores() {
   
   let dateToOpen;
 
-  if (dayOfWeek === 5 || dayOfWeek === 6) { // Пятница или Суббота
+  if (dayOfWeek === 5 || dayOfWeek === 6) { 
     console.log('В пятницу и субботу очередь не генерируется, магазины закрыты.');
     return; 
   } else if (dayOfWeek === 0) { // Воскресенье
     dateToOpen = new Date(today);
     dateToOpen.setDate(today.getDate() + 1); // Генерируем на понедельник
-  } else { // С понедельника по четверг
+  } else { 
     dateToOpen = new Date(today);
     dateToOpen.setDate(today.getDate() + 1); // Генерация на следующий рабочий день
   }
@@ -37,7 +37,6 @@ async function openQueuesForAllStores() {
       return;
     }
 
-    // Для каждого магазина создаём запись с одинаковым временем открытия
     for (const store of stores) {
       try {
         await Queues.create({

@@ -6,12 +6,11 @@ require('dotenv').config();
 const cacheShop = new NodeCache({ stdTTL: 86400, checkperiod: 14400 });
 const cache = new NodeCache({ stdTTL: 600, checkperiod: 300 });
 
-// Лог кэша
-function logCacheState(key) {
+/* function logCacheState(key) {
   console.log(`Ключ в кэше: ${key}`);
   console.log(`Текущие ключи: ${cache.keys()}`);
   console.log(`Размер кэша: ${cache.keys().length}`);
-}
+} */
 
 userRouter.route('/').get(async (req, res) => {
   try {
@@ -21,7 +20,6 @@ userRouter.route('/').get(async (req, res) => {
     }
     const stores = await Stores.findAll();
     cacheShop.set('stores', stores);
-    console.log('Данные магазинов загружены из базы данных и сохранены в кэш.');
     res.status(200).json(stores);
   } catch (error) {
     console.error('Ошибка при получении магазинов:', error);
@@ -37,11 +35,8 @@ userRouter.route('/:store_id/queue/:date').get(async (req, res) => {
   try {
     const cachedQueue = cache.get(cacheKey);
     if (cachedQueue) {
-      console.log(`Кэш найден для ключа: ${cacheKey}`);
       return res.status(200).json(cachedQueue);
     }
-
-    console.log(`Кэш не найден для ключа: ${cacheKey}, запрос к базе данных...`);
 
     const targetDate = new Date(date);
     targetDate.setHours(0, 0, 0, 0);
@@ -96,7 +91,6 @@ userRouter.route('/:store_id/queue/:date').get(async (req, res) => {
     }
 
     cache.set(cacheKey, response);
-    console.log(`Кэш обновлён для ключа: ${cacheKey}`);
     res.status(200).json(response);
   } catch (error) {
     console.error(`Ошибка при обработке запроса для ключа ${cacheKey}:`, error);
@@ -114,29 +108,45 @@ userRouter.route('/:store_id/queue/:date/signup').post(async (req, res) => {
     if (!telegram_id || !first_name || !last_name) {
       return res.status(400).json({ message: 'Недостаточно данных для записи' });
     }
+    const cleanFirstName = first_name.trim();
+    const cleanLastName = last_name.trim();
 
-    const user = await User.findOrCreate({
+    // Поиск или создание пользователя
+    const [user, created] = await User.findOrCreate({
       where: { telegram_id },
-      defaults: { first_name, last_name },
+      defaults: { first_name: cleanFirstName, last_name: cleanLastName },
     });
 
+    if (!created) {
+      let hasChanges = false;
+
+      if (user.first_name !== cleanFirstName) {
+        user.first_name = cleanFirstName;
+        hasChanges = true;
+      }
+      if (user.last_name !== cleanLastName) {
+        user.last_name = cleanLastName;
+        hasChanges = true;
+      }
+      if (hasChanges) {
+        await user.save();
+      }
+    }
     const targetDate = new Date(date);
     targetDate.setHours(0, 0, 0, 0);
 
     const queue = await Queues.findOne({ where: { store_id, date: targetDate } });
+
     if (!queue) {
       return res.status(404).json({ message: 'Очередь не найдена' });
     }
-
     const now = new Date();
     if (!queue.opened_at || now < new Date(queue.opened_at)) {
       return res.status(403).json({ message: 'Очередь ещё не открыта' });
     }
-
     const existingEntry = await Queue_entries.findOne({
-      where: { user_id: user[0].id, queue_id: queue.id },
+      where: { user_id: user.id, queue_id: queue.id },
     });
-
     if (existingEntry) {
       return res.status(400).json({ message: 'Вы уже записаны в очередь' });
     }
@@ -144,13 +154,13 @@ userRouter.route('/:store_id/queue/:date/signup').post(async (req, res) => {
 
     const newEntry = await Queue_entries.create({
       queue_id: queue.id,
-      user_id: user[0].id,
+      user_id: user.id,
       position: currentCount + 1,
     });
-    // Удаление кэша после изменения данных
+
+    // Удаление устаревшего кэша
     if (cache.has(cacheKey)) {
       cache.del(cacheKey);
-      console.log(`Кэш удалён для ключа: ${cacheKey}`);
     }
 
     res.status(201).json({
@@ -196,7 +206,7 @@ userRouter.route('/:store_id/queue/:date/delete').delete(async (req, res) => {
     }
 
     await queueEntry.destroy();
-    cache.del(cacheKey); // Удаляем кэш
+    cache.del(cacheKey); 
     res.status(200).json({ message: 'Запись успешно удалена' });
   } catch (error) {
     console.error('Ошибка при удалении записи:', error);

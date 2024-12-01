@@ -3,7 +3,7 @@ const { User } = require('../db/models');
 require('dotenv').config();
 
 // eslint-disable-next-line no-undef
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN1, { polling: true });
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
 
 bot.setMyCommands([
   { command: '/start', description: 'Начать взаимодействие с ботом' },
@@ -22,8 +22,8 @@ bot.onText(/\/start/, async (msg) => {
     });
 
     
-    //const url = `https://tgqueue.ru?telegram_id=${chatId}`;
-    const url = `https://9ae5-95-164-12-129.ngrok-free.app?telegram_id=${chatId}`;
+    const url = `https://tgqueue.ru?telegram_id=${chatId}`;
+    //const url = `https://96f1-95-164-12-129.ngrok-free.app?telegram_id=${chatId}`;
 
     if (created) {
       bot.sendMessage(chatId, 'Вы успешно зарегистрированы! Нажмите на кнопку, чтобы записаться в сизо', {

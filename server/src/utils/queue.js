@@ -4,7 +4,6 @@ async function openQueuesForAllStores() {
   const today = new Date();
   const dayOfWeek = today.getDay(); // День недели
 
-  
   let dateToOpen;
 
   if (dayOfWeek === 5 || dayOfWeek === 6) { 
@@ -17,8 +16,6 @@ async function openQueuesForAllStores() {
     dateToOpen = new Date(today);
     dateToOpen.setDate(today.getDate() + 1); // Генерация на следующий рабочий день
   }
-
-  
   dateToOpen.setHours(0, 0, 0, 0);
 
   //const randomHour = Math.floor(Math.random() * (23 - 18 + 1)) + 18;

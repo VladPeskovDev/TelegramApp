@@ -14,29 +14,14 @@ export const getShopsThunk = createAsyncThunk<ApiResponce>(
         return data;
     });
 
-    export const getShopByIdThunk = createAsyncThunk<ShopType, number>(
+    /*export const getShopByIdThunk = createAsyncThunk<ShopType, number>(
         'shops/getById',
         async (id) => {
           const data = await ShopService.getShopById(id);
           return data;
-        }
-      );
+        } 
+      );*/
 
-    /* export const getShopQueueTomorrowThunk = createAsyncThunk<ShopType, number>(
-  'shops/getQueueTomorrow',
-  async (id: number) => {
-    const data = await ShopService.getShopQueueTomorrow(id); // Вызываем сервис с axios
-    return data;
-  }
-); */
-/* export const getShopQueueByDateThunk = createAsyncThunk<ShopQueueResponse, { id: string, date: string }>(
-  'shops/getQueueByDate',
-  async ({ id, date }) => {
-    const data = await ShopService.getShopQueueByDate(id, date);
-    return data;
-  }
-);
-*/
 
 
     

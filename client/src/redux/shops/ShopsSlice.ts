@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { ShopType } from '../../types/ShopTypes';
-import { getShopsThunk, getShopByIdThunk} from './ShopAsyncActions';
+import { getShopsThunk } from './ShopAsyncActions';
 
 type InitialStateType = {
   data: ShopType[];
@@ -20,9 +20,6 @@ const ShopsSlice = createSlice({
     builder.addCase(getShopsThunk.fulfilled, (state, { payload }) => {
       state.data = payload;
     });
-    builder.addCase(getShopByIdThunk.fulfilled, (state, { payload }) => {
-      state.selectedShop = payload;
-    })
   },
 });
 

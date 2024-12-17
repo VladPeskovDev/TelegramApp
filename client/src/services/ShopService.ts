@@ -12,10 +12,10 @@ class ShopService {
         return ShopsSchema.parse(data);
     }
 
-    async getShopById(id: number): Promise<ShopType> {
+    /* async getShopById(id: number): Promise<ShopType> {
         const {data} = await this.api.get<ShopType>(`/shops/${id}`);
         return ShopSchema.parse(data);
-    }
+    } */
 
 } 
 

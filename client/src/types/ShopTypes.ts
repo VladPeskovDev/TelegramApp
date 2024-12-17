@@ -1,5 +1,6 @@
 import type { z } from 'zod';
 import type { ShopSchema } from '../utils/validatorsShop';
+import type { UserType } from './UserTypes';
 
 
 export type ShopType = z.infer<typeof ShopSchema>;
@@ -19,6 +20,8 @@ export type QueueEntry = {
     first_name: string;
     last_name: string;
     telegram_id: string | null;
+    user?: UserType;
+
   };
   
   export type ShopQueueResponse = {

@@ -7,7 +7,7 @@ export default function useShopQueueByDate(): {
   loading: boolean;
   error: string | null;
   fetchQueueByDate: (id: string, date: string) => void;
-  signupForQueue: (id: string, date: string, first_name: string, last_name: string, telegram_id: string | null) => void;
+  signupForQueue: (id: string, date: string, first_name: string, last_name: string, telegram_id: string | null) => Promise<void>;
   deleteQueueEntry: (id: string, date: string, telegram_id: string | null) => void;
   
 } {
@@ -22,9 +22,11 @@ export default function useShopQueueByDate(): {
     }
   };
 
-  const signupForQueue = (id: string, date: string, first_name: string, last_name: string, telegram_id: string | null): void => {
+  
+
+  const signupForQueue = async (id: string, date: string, first_name: string, last_name: string, telegram_id: string | null): Promise<void> => {
     if (id && date) {
-      void dispatch(signupForQueueThunk({ id, date, first_name, last_name, telegram_id }));
+      await dispatch(signupForQueueThunk({ id, date, first_name, last_name, telegram_id }));
     }
   };
 

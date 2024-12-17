@@ -3,7 +3,7 @@ const { User } = require('../db/models');
 require('dotenv').config();
 
 // eslint-disable-next-line no-undef
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN1, { polling: true });
 
 bot.setMyCommands([
   { command: '/start', description: 'Начать взаимодействие с ботом' },

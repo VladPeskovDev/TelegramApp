@@ -68,7 +68,7 @@ export default function SubmitUser({
           sx={{ marginBottom: 2 }}
         />
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-          <Button variant="contained" color="primary" onClick={handleSubmit}>
+          <Button variant="contained" color="primary" onClick={() => { void handleSubmit(); }}>
             Записаться
           </Button>
           <Button variant="outlined" color="secondary" onClick={onClose}>

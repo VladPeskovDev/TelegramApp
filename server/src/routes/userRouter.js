@@ -6,11 +6,6 @@ require('dotenv').config();
 const cacheShop = new NodeCache({ stdTTL: 86400, checkperiod: 14400 });
 const cache = new NodeCache({ stdTTL: 600, checkperiod: 300 });
 
-/* function logCacheState(key) {
-  console.log(`Ключ в кэше: ${key}`);
-  console.log(`Текущие ключи: ${cache.keys()}`);
-  console.log(`Размер кэша: ${cache.keys().length}`);
-} */
 
 userRouter.route('/').get(async (req, res) => {
   try {
@@ -37,7 +32,6 @@ userRouter.route('/:store_id/queue/:date').get(async (req, res) => {
     if (cachedQueue) {
       return res.status(200).json(cachedQueue);
     }
-
     const targetDate = new Date(date);
     targetDate.setHours(0, 0, 0, 0);
 
@@ -74,6 +68,7 @@ userRouter.route('/:store_id/queue/:date').get(async (req, res) => {
             attributes: ['first_name', 'last_name'],
           },
         ],
+        order: [['position', 'ASC']], // Добавлена сортировка
       });
       response.users = entries.map((entry) => ({
         id: entry.id,
@@ -89,6 +84,7 @@ userRouter.route('/:store_id/queue/:date').get(async (req, res) => {
         },
       }));
     }
+    
 
     cache.set(cacheKey, response);
     res.status(200).json(response);

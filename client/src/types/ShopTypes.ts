@@ -21,6 +21,8 @@ export type QueueEntry = {
     last_name: string;
     telegram_id: string | null;
     user?: UserType;
+    createdAt: string;
+    updatedAt: string;
 
   };
   

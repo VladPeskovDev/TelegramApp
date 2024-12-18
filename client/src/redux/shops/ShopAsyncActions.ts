@@ -1,8 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import ShopService from "../../services/ShopService";
-// eslint-disable-next-line import/no-duplicates
-import type {  ShopType } from "../../types/ShopTypes";
-// eslint-disable-next-line import/no-duplicates
 import { type ApiResponce } from "../../types/ShopTypes";
 
 
@@ -14,13 +11,7 @@ export const getShopsThunk = createAsyncThunk<ApiResponce>(
         return data;
     });
 
-    /*export const getShopByIdThunk = createAsyncThunk<ShopType, number>(
-        'shops/getById',
-        async (id) => {
-          const data = await ShopService.getShopById(id);
-          return data;
-        } 
-      );*/
+   
 
 
 

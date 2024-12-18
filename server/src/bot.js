@@ -22,8 +22,8 @@ bot.onText(/\/start/, async (msg) => {
     });
 
     
-    const url = `https://tgqueue.ru?telegram_id=${chatId}`;
-    //const url = `https://96f1-95-164-12-129.ngrok-free.app?telegram_id=${chatId}`;
+    //const url = `https://tgqueue.ru?telegram_id=${chatId}`;
+    const url = `https://10ab-5-228-82-124.ngrok-free.app?telegram_id=${chatId}`;
 
     if (created) {
       bot.sendMessage(chatId, 'Вы успешно зарегистрированы! Нажмите на кнопку, чтобы записаться в сизо', {

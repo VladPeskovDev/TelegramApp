@@ -22,8 +22,6 @@ export default function useShopQueueByDate(): {
     }
   };
 
-  
-
   const signupForQueue = async (id: string, date: string, first_name: string, last_name: string, telegram_id: string | null): Promise<void> => {
     if (id && date) {
       await dispatch(signupForQueueThunk({ id, date, first_name, last_name, telegram_id }));

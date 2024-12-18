@@ -95,7 +95,7 @@ export default function ShopPage(): JSX.Element {
               <TableRow>
                 <TableCell>№</TableCell>
                 <TableCell>Фамилия</TableCell>
-                <TableCell>Имя</TableCell>
+                <TableCell>Имя/Отчество</TableCell>
                 <TableCell>Время записи</TableCell>
               </TableRow>
             </TableHead>
@@ -106,18 +106,18 @@ export default function ShopPage(): JSX.Element {
                   <TableCell>{user.user?.last_name}</TableCell>
                   <TableCell>{user.user?.first_name}</TableCell>
                   <TableCell>
-  {user.createdAt && (() => {
-    const date = new Date(user.createdAt);
-    date.setHours(date.getHours() + 3); // Добавляем 3 часа для московского времени
-    return date.toLocaleString('ru-RU', {
-      day: '2-digit',
-      month: '2-digit',
-      year: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  })()}
-</TableCell>
+                 {user.createdAt && (() => {
+                  const date = new Date(user.createdAt);
+                  date.setHours(date.getHours() + 3); // Добавляем 3 часа для московского времени
+                  return date.toLocaleString('ru-RU', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                    });
+                  })()}
+                  </TableCell>
 
                 </TableRow>
               ))}

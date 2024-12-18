@@ -108,7 +108,7 @@ export default function ShopPage(): JSX.Element {
                   <TableCell>
                  {user.createdAt && (() => {
                   const date = new Date(user.createdAt);
-                  date.setHours(date.getHours() + 3); // Добавляем 3 часа для московского времени
+                  date.setHours(date.getHours() + 0); // Добавляем 3 часа для московского времени
                   return date.toLocaleString('ru-RU', {
                   day: '2-digit',
                   month: '2-digit',

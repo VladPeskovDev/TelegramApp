@@ -211,3 +211,86 @@ userRouter.route('/:store_id/queue/:date/delete').delete(async (req, res) => {
 });
 
 module.exports = userRouter;
+
+
+
+/*  
+
+// Запись в очередь
+userRouter.route('/:store_id/queue/:date/signup').post(async (req, res) => {
+  const { store_id, date } = req.params;
+  const { first_name, last_name, telegram_id } = req.body;
+  const cacheKey = `queue_${store_id}_${date}`;
+
+  try {
+    if (!telegram_id || !first_name || !last_name) {
+      return res.status(400).json({ message: 'Недостаточно данных для записи' });
+    }
+
+    const cleanFirstName = first_name.trim();
+    const cleanLastName = last_name.trim();
+
+    // Поиск пользователя по telegram_id
+    const user = await User.findOne({ where: { telegram_id } });
+
+    if (!user) {
+      return res.status(404).json({ message: 'Пользователь с таким Telegram ID не найден' });
+    }
+
+    // Обновление имени и фамилии пользователя, если они изменились
+    let hasChanges = false;
+    if (user.first_name !== cleanFirstName) {
+      user.first_name = cleanFirstName;
+      hasChanges = true;
+    }
+    if (user.last_name !== cleanLastName) {
+      user.last_name = cleanLastName;
+      hasChanges = true;
+    }
+    if (hasChanges) {
+      await user.save();
+    }
+
+    const targetDate = new Date(date);
+    targetDate.setHours(0, 0, 0, 0);
+
+    const queue = await Queues.findOne({ where: { store_id, date: targetDate } });
+
+    if (!queue) {
+      return res.status(404).json({ message: 'Очередь не найдена' });
+    }
+    const now = new Date();
+    if (!queue.opened_at || now < new Date(queue.opened_at)) {
+      return res.status(403).json({ message: 'Очередь ещё не открыта' });
+    }
+    const existingEntry = await Queue_entries.findOne({
+      where: { user_id: user.id, queue_id: queue.id },
+    });
+    if (existingEntry) {
+      return res.status(400).json({ message: 'Вы уже записаны в очередь' });
+    }
+    const currentCount = await Queue_entries.count({ where: { queue_id: queue.id } });
+
+    const newEntry = await Queue_entries.create({
+      queue_id: queue.id,
+      user_id: user.id,
+      position: currentCount + 1,
+    });
+
+    // Удаление устаревшего кэша
+    if (cache.has(cacheKey)) {
+      cache.del(cacheKey);
+    }
+
+    res.status(201).json({
+      message: 'Вы успешно записаны в очередь',
+      queueEntry: newEntry,
+    });
+  } catch (error) {
+    console.error('Ошибка записи в очередь:', error);
+    res.status(500).json({ message: 'Ошибка записи в очередь' });
+  }
+});
+
+
+*/
